@@ -2,7 +2,7 @@ package message;
 
 public class LogoutCompleteMessage extends Message
 {
-	private static byte LogoutCompleteMessageCode = 4;
+	private static byte LogoutCompleteMessageCode = 11;
 	
 public byte getMessageCode()
 {

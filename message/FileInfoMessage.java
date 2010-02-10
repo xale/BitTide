@@ -2,7 +2,7 @@ package message;
 
 public class FileInfoMessage extends Message
 {
-	private static byte FileInfoMessageCode = 1;
+	private static byte FileInfoMessageCode = 5;
 	
 public byte getMessageCode()
 {
