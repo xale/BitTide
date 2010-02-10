@@ -1,6 +1,6 @@
 ALL=tracker peer
-all=$(ALL)
-main=$(ALL)
+all: $(ALL)
+main: $(ALL)
 
 # Build rules
 tracker: tracker/Tracker.class
