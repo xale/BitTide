@@ -8,7 +8,7 @@ peer: peer/Peer.class
 
 # Cleaning rules
 clean:
-	rm -rf message/*.class peer/*.class
+	rm -rf message/*.class peer/*.class tracker/*.class
 
 # Dependencies
 peer/Peer.class: peer/*.java
