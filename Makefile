@@ -1,5 +1,4 @@
 ALL=tracker peer
-
 all: $(ALL)
 main: $(ALL)
 
