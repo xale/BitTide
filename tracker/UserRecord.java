@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.Scanner;
 import java.lang.IllegalArgumentException;
 import java.util.HashSet;
+import tracker.LogState;
 
 public class UserRecord
 {
@@ -14,6 +15,7 @@ public class UserRecord
 	private final String password;
 	private final InetSocketAddress address;
 	private Set<String> fileNames;
+	private LogState logState;
 
 	/**
 	  * @return a finalized int.
@@ -35,6 +37,13 @@ public class UserRecord
 	public InetSocketAddress getAddress()
 	{
 		return address;
+	}
+	/**
+	  * @return the login state of the user.
+	  */
+	public LogState getLogState()
+	{
+		return logState;
 	}
 	/**
 	  * @param fileName The filename to check against the internal set.
@@ -94,10 +103,14 @@ public class UserRecord
 			System.err.printf("'%s' could not be found.", ip);
 			throw e;
 		}
-		fileNames = new HashSet();
+		fileNames = new HashSet<String>();
 		while (scanner.hasNext())
 		{
 			fileNames.add(scanner.next());
 		}
+		
+		// Set the default login state of a user to be logged out
+		// TODO: is this correct behavior?
+		logState = LogState.logout;
 	}
 }
