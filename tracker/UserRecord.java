@@ -1,7 +1,6 @@
 package tracker;
 
 import java.net.InetSocketAddress;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Set;
 import java.util.Scanner;
@@ -70,7 +69,7 @@ public class UserRecord
 	/**
 	  * @param dbString A single line of the file database.
 	  */
-	public UserRecord(String dbString) throws UnknownHostException
+	public UserRecord(String dbString)
 	{
 		Scanner scanner = new Scanner(dbString);
 		if (! scanner.hasNextInt())
@@ -93,16 +92,7 @@ public class UserRecord
 			throw new IllegalArgumentException("String does not have an port field.");
 		}
 		int port = scanner.nextInt();
-		try
-		{
-			address = new InetSocketAddress(InetAddress.getByName(ip), port);
-		}
-		catch (UnknownHostException e)
-		{
-			// log exception
-			System.err.printf("'%s' could not be found.", ip);
-			throw e;
-		}
+		address = new InetSocketAddress(ip, port);
 		fileNames = new HashSet<String>();
 		while (scanner.hasNext())
 		{
@@ -112,5 +102,21 @@ public class UserRecord
 		// Set the default login state of a user to be logged out
 		// TODO: is this correct behavior?
 		logState = LogState.logout;
+	}
+	public String toString()
+	{
+		StringBuilder s = new StringBuilder();
+		s.append(userID); s.append(' ');
+		s.append(password); s.append(' ');
+
+		// getAddress() returns an InetAddress from an InetSocketAddress
+		// getHostAddress() returns the string ip from an InetAddress
+		s.append(address.getAddress().getHostAddress()); s.append(' ');
+		s.append(address.getPort()); s.append(' ');
+		for (String fileName : fileNames)
+		{
+			s.append(fileName); s.append(' ');
+		}
+		return s.toString();
 	}
 }

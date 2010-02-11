@@ -30,7 +30,7 @@ public class Database
 		{
 			return null;
 		}
-		Set<UserRecord> userRecords = new HashSet();
+		Set<UserRecord> userRecords = new HashSet<UserRecord>();
 		for (Integer uid : userIDs)
 		{
 			userRecords.add(userDB.get(uid));
