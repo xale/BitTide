@@ -45,26 +45,26 @@ public class UserRecord
 		return logState;
 	}
 	/**
-	  * @param fileName The filename to check against the internal set.
+	  * @param filename The filename to check against the internal set.
 	  * @return true if the internal set contains the filename, false otherwise.
 	  */
-	public boolean hasFileName(String fileName)
+	public boolean hasFileName(String filename)
 	{
-		return fileNames.contains(fileName);
+		return fileNames.contains(filename);
 	}
 	/**
-	  * @param fileName The filename to add to the internal set.
+	  * @param filename The filename to add to the internal set.
 	  */
-	public void addFileName(String fileName)
+	public void addFileName(String filename)
 	{
-		fileNames.add(fileName);
+		fileNames.add(filename);
 	}
 	/**
-	  * @param fileName The filename to remove from the internal set.
+	  * @param filename The filename to remove from the internal set.
 	  */
-	public void removeFileName(String fileName)
+	public void removeFileName(String filename)
 	{
-		fileNames.remove(fileName);
+		fileNames.remove(filename);
 	}
 	/**
 	  * @param dbString A single line of the file database.
@@ -113,9 +113,9 @@ public class UserRecord
 		// getHostAddress() returns the string ip from an InetAddress
 		s.append(address.getAddress().getHostAddress()); s.append(' ');
 		s.append(address.getPort()); s.append(' ');
-		for (String fileName : fileNames)
+		for (String filename : fileNames)
 		{
-			s.append(fileName); s.append(' ');
+			s.append(filename); s.append(' ');
 		}
 		return s.toString();
 	}
