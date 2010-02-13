@@ -7,16 +7,18 @@ import message.*;
 
 public class Peer
 {
-	private static InetSocketAddress trackerAddress;
+	private static InetSocketAddress trackerAddress = null;
 	
-	private static Socket trackerSocket;
-	private static InputStream read;
-	private static OutputStream write;
+	private static Socket trackerSocket = null;
+	private static InputStream readStream = null;
+	private static OutputStream writeStream = null;
 	
-	private static String username;
-	private static String password;
+	private static String username = null;
+	private static String password = null;
 	
-	private static URI downloadsDirectory;
+	private static URI downloadsDirectory = null;
+	
+	private static PeerListenerThread peerListener = null;
 
 public static void main(String[] args)
 {
@@ -31,25 +33,42 @@ public static void main(String[] args)
 		System.exit(1);
 	}
 	
-	// Open a listening port
-	// FIXME: WRITEME
+	// Create a thread to listen for incoming peer connections
+	try
+	{
+		System.out.print("Starting peer listener... ");
+		peerListener = new PeerListenerThread();
+		System.out.println("done");
+	}
+	catch (IOException E)
+	{
+		System.err.println("ERROR: could not start peer listener");
+		closeSocketsAndExit(1);
+	}
 	
 	// Attempt to connect to the server
 	try
 	{
+		// Connect a socket to the specified address
+		System.out.print("Connecting to tracker " + trackerAddress + "... ");
 		trackerSocket = new Socket(trackerAddress.getAddress(), trackerAddress.getPort());
-		write = trackerSocket.getOutputStream();
-		read = trackerSocket.getInputStream();
+		System.out.println(" done");
+		
+		// Open streams on the socket
+		System.out.print("Opening streams to tracker... ");
+		writeStream = trackerSocket.getOutputStream();
+		readStream = trackerSocket.getInputStream();
+		System.out.println(" done");
 	}
 	catch (UnknownHostException UHE)
 	{
-		System.err.println("Cannot connect to host: " + trackerAddress.getAddress());
-		System.exit(1);
+		System.err.println("ERROR: cannot connect to host: " + trackerAddress.getAddress());
+		closeSocketsAndExit(1);
 	}
 	catch (IOException E)
 	{
-		System.err.println("Error getting streams to host " + trackerAddress.getAddress());
-		System.exit(1);
+		System.err.println("ERROR: cannot get streams to host " + trackerAddress.getAddress());
+		closeSocketsAndExit(1);
 	}
 	
 	// Send a login message
@@ -57,6 +76,9 @@ public static void main(String[] args)
 	
 	// Enter interactive loop
 	// FIXME: WRITEME
+	
+	// Close everything and exit
+	closeSocketsAndExit(0);
 }
 
 public static void parseArguments(String[] args)
@@ -84,6 +106,74 @@ public static void parseArguments(String[] args)
 		// If anything goes wrong, toss an IAE; main() will print the usage info and exit
 		throw new IllegalArgumentException("Error parsing command-line arguments");
 	}
+}
+
+public static void closeSocketsAndExit(int exitCode)
+{
+	// Shut down the listener
+	if ((peerListener != null) && peerListener.isAlive())
+	{
+		try
+		{
+			System.out.print("Shutting down peer listener... ");
+			peerListener.setListening(false);
+			peerListener.join();
+			System.out.println("done");
+		}
+		catch (Exception E)
+		{
+			System.out.println();
+			E.printStackTrace();
+		}
+	}
+	
+	// Close the tracker connections
+	if (writeStream != null)
+	{
+		try
+		{
+			System.out.print("Closing output stream to tracker... ");
+			writeStream.close();
+			System.out.println("done");
+		}
+		catch (Exception E)
+		{
+			System.out.println();
+			E.printStackTrace();
+		}
+	}
+	if (readStream != null)
+	{
+		try
+		{
+			System.out.print("Closing input stream from tracker... ");
+			readStream.close();
+			System.out.println("done");
+		}
+		catch (Exception E)
+		{
+			System.out.println();
+			E.printStackTrace();
+		}
+	}
+	if ((trackerSocket != null) && !trackerSocket.isClosed())
+	{
+		try
+		{
+			System.out.print("Shutting down connction to tracker... ");
+			trackerSocket.close();
+			System.out.println("done");
+		}
+		catch (Exception E)
+		{
+			System.out.println();
+			E.printStackTrace();
+		}
+	}
+	
+	System.out.println("Connections closed, exiting");
+	
+	System.exit(exitCode);
 }
 
 public static void usage()
