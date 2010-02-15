@@ -8,7 +8,7 @@ public class LoginMessage extends Message
 	private byte[] username;
 	private byte[] password;
 
-public LoginMessage(short peerListenPort, String peerName, String peerPass)
+public LoginMessage(int peerListenPort, String peerName, String peerPass)
 	throws IllegalArgumentException
 {
 	listenPort = peerListenPort;
