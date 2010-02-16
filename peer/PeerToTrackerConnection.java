@@ -27,16 +27,20 @@ public void sendMessage(Message message)
 	// FIXME: WRITEME
 }
 
-private static final String unspecifiedErrorMessage = "an unknown error occurred";
-
 public Message nextMessage()
 	throws EOFException, IOException, ErrorMessageException
 {
-	// Read and return the next message from the input stream
-	//return MessageFactory.nextMessageFromStream(readStream);
+	// Read the next message from the input stream
+	Message message = Message.nextMessageFromStream(readStream);
 	
-	// FIXME: temporary
-	return null;
+	// If the message is an error, throw an exception
+	if (message.getMessageCode() == MessageCode.ErrorMessageCode)
+	{
+		ErrorMessage errorMessage = (ErrorMessage)message;
+		throw new ErrorMessageException(errorMessage.getErrorDescription());
+	}
+	
+	return message;
 }
 
 public void close()
