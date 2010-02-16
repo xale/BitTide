@@ -2,11 +2,15 @@ package message;
 
 public class SuccessMessage extends Message
 {
-	private static byte SuccessMessageCode = 1;
-	
-public byte getMessageCode()
+
+public SuccessMessage()
 {
-	return SuccessMessageCode;
+	// No data fields on a success message
+}
+
+public MessageCode getMessageCode()
+{
+	return MessageCode.SuccessMessageCode;
 }
 
 public byte[] getRawMessage()

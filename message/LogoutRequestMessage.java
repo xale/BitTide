@@ -2,11 +2,10 @@ package message;
 
 public class LogoutRequestMessage extends Message
 {
-	private static byte LogoutRequestMessageCode = 7;
-	
-public byte getMessageCode()
+
+public MessageCode getMessageCode()
 {
-	return LogoutRequestMessageCode;
+	return MessageCode.LogoutRequestMessageCode;
 }
 
 public byte[] getRawMessage()

@@ -2,11 +2,10 @@ package message;
 
 public class SearchRequestMessage extends Message
 {
-	private static byte SearchRequestMessageCode = 3;
 	
-public byte getMessageCode()
+public MessageCode getMessageCode()
 {
-	return SearchRequestMessageCode;
+	return MessageCode.SearchRequestMessageCode;
 }
 
 public byte[] getRawMessage()

@@ -2,11 +2,10 @@ package message;
 
 public class ErrorMessage extends Message
 {
-	private static byte ErrorMessageCode = 8;
 
-public byte getMessageCode()
+public MessageCode getMessageCode()
 {
-	return ErrorMessageCode;
+	return MessageCode.ErrorMessageCode;
 }
 
 public byte[] getRawMessage()

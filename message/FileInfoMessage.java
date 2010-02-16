@@ -2,11 +2,10 @@ package message;
 
 public class FileInfoMessage extends Message
 {
-	private static byte FileInfoMessageCode = 5;
-	
-public byte getMessageCode()
+
+public MessageCode getMessageCode()
 {
-	return FileInfoMessageCode;
+	return MessageCode.FileInfoMessageCode;
 }
 
 public byte[] getRawMessage()

@@ -2,29 +2,21 @@ package message;
 
 public class LoginMessage extends Message
 {
-	private static byte LoginMessageCode = 2;
-	
 	private int listenPort;
-	private byte[] username;
-	private byte[] password;
+	private String username;
+	private String password;
 
 public LoginMessage(int peerListenPort, String peerName, String peerPass)
 	throws IllegalArgumentException
 {
+	// Check the length of the password
+	// We are naively assuming that each character is one byte; we can't handle unicode here
+	if (password.length() > 4)
+		throw new IllegalArgumentException("maximum password length is 4 characters");
+	
 	listenPort = peerListenPort;
-	
-	// Attempt to convert the username and password into ASCII byte arrays
-	/* FIXME: WRITEME
-	try
-	{
-		username = peerName.getBytes("US-ASCII");
-		password = peerPass.getBytes("US-ASCII");
-	}
-	*/
-	
-	// FIXME: temporary
-	username = null;
-	password = null;
+	username = username;
+	password = password;
 }
 
 public int getListenPort()
@@ -32,19 +24,19 @@ public int getListenPort()
 	return listenPort;
 }
 
-public byte[] getUsername()
+public String getUsername()
 {
 	return username;
 }
 
-public byte[] getPassword()
+public String getPassword()
 {
 	return password;
 }
 
-public byte getMessageCode()
+public MessageCode getMessageCode()
 {
-	return LoginMessageCode;
+	return MessageCode.LoginMessageCode;
 }
 
 public byte[] getRawMessage()

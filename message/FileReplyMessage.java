@@ -2,11 +2,10 @@ package message;
 
 public class FileReplyMessage extends Message
 {
-	private static byte FileReplyMessageCode = 10;
-	
-public byte getMessageCode()
+
+public MessageCode getMessageCode()
 {
-	return FileReplyMessageCode;
+	return MessageCode.FileReplyMessageCode;
 }
 
 public byte[] getRawMessage()

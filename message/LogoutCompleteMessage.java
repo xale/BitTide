@@ -2,11 +2,10 @@ package message;
 
 public class LogoutCompleteMessage extends Message
 {
-	private static byte LogoutCompleteMessageCode = 11;
-	
-public byte getMessageCode()
+
+public MessageCode getMessageCode()
 {
-	return LogoutCompleteMessageCode;
+	return MessageCode.LogoutCompleteMessageCode;
 }
 
 public byte[] getRawMessage()
