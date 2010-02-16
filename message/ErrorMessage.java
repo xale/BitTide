@@ -2,7 +2,7 @@ package message;
 
 public class ErrorMessage extends Message
 {
-	private static final String unspecifiedErrorMessage = "an unknown error occurred";
+	private static final String unspecifiedErrorMessage = "the tracker reported an unknown error";
 	
 	private String errorDescription;
 
