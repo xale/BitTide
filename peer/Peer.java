@@ -61,12 +61,12 @@ public static void main(String[] args)
 	catch (IOException E)
 	{
 		System.out.println();
-		System.err.println("error connecting to tracker: cannot get streams to host " + trackerAddress.getAddress());
+		System.err.println("error connecting to tracker: could not get streams to host " + trackerAddress.getAddress());
 		closeConnectionsAndExit(1);
 	}
 	
 	// Create a login message
-	Message message;
+	Message message = null;
 	try
 	{
 		// Create the message with the listener port, and the user's username and password
@@ -85,16 +85,30 @@ public static void main(String[] args)
 	try
 	{
 		// Send the message
-		// FIXME: WRITEME
+		trackerConnection.sendMessage(message);
 		
 		// Wait for a response from the server
-		// FIXME: WRITEME
+		message = trackerConnection.nextMessage();
 		
 		System.out.println("done");
 	}
-	catch (Exception E)
+	catch (ErrorMessageException EME)
 	{
-		// FIXME: WRITEME
+		System.out.println();
+		System.err.println("error logging in: " + EME.getMessage());
+		closeConnectionsAndExit(1);
+	}
+	catch (EOFException EOFE)
+	{
+		System.out.println();
+		System.err.println("error logging in: the tracker closed the connection");
+		closeConnectionsAndExit(1);
+	}
+	catch (IOException IOE)
+	{
+		System.out.println();
+		System.err.println("error logging in: a network error occurred: " + IOE.getMessage());
+		closeConnectionsAndExit(1);
 	}
 	
 	// Send the list of files we're serving to the server
