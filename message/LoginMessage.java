@@ -19,6 +19,11 @@ public LoginMessage(int peerListenPort, String peerName, String peerPass)
 	password = password;
 }
 
+public LoginMessage(byte[] messagePayload)
+{
+	// FIXME: WRITEME
+}
+
 public int getListenPort()
 {
 	return listenPort;
