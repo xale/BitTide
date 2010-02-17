@@ -1,9 +1,11 @@
 package message;
 
+import java.nio.*;
+
 public class LogoutCompleteMessage extends Message
 {
 
-public LogoutCompleteMessage(byte[] messagePayload)
+public LogoutCompleteMessage(ByteBuffer contents)
 {
 	// FIXME: WRITEME
 }

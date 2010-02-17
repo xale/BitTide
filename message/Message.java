@@ -1,12 +1,13 @@
 package message;
 
 import java.io.*;
+import java.nio.*;
 
 public abstract class Message
 {
 
-private static final long MAX_MESSAGE_LENGTH = (16 * 1024) + 7;
 private static final int HEADER_LENGTH = 5;
+private static final long MAX_MESSAGE_LENGTH = ((16 * 1024) + 2) + HEADER_LENGTH;
 
 /**
 *	Class factory: blocks on reading an input stream until it can construct a message, then returns a message of the appropriate type when it has received enough information.
@@ -43,11 +44,11 @@ public static Message nextMessageFromStream(DataInputStream stream)
 	int payloadLength = (int)(messageLength - HEADER_LENGTH);
 	
 	// If the payload length is non-zero, read the payload into a buffer
-	byte[] messagePayload = null;
+	ByteBuffer messagePayload = null;
 	if (payloadLength > 0)
 	{
-		messagePayload = new byte[payloadLength];
-		stream.readFully(messagePayload, 0, payloadLength);
+		messagePayload = ByteBuffer.wrap(new byte[payloadLength]);
+		stream.readFully(messagePayload.array());
 	}
 	
 	// Create and return the appropriate type of message, containing the payload contents

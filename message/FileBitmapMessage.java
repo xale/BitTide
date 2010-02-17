@@ -1,9 +1,11 @@
 package message;
 
+import java.nio.*;
+
 public class FileBitmapMessage extends Message
 {
 
-public FileBitmapMessage(byte[] messagePayload)
+public FileBitmapMessage(ByteBuffer contents)
 {
 	// FIXME: WRITEME
 }

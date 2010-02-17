@@ -1,17 +1,34 @@
 package message;
 
+import java.io.*;
+import java.nio.*;
+
 public class ErrorMessage extends Message
 {
-	private static final String unspecifiedErrorMessage = "the tracker reported an unknown error";
+	private static final String unspecifiedErrorDescription = "the tracker reported an unknown error";
 	
 	private String errorDescription;
 
-public ErrorMessage(byte[] messagePayload)
+public ErrorMessage(ByteBuffer contents)
 {
-	if (messagePayload.length == 0)
-		errorDescription = unspecifiedErrorMessage;
+	// Check if the message contains an error description
+	if (contents != null)
+	{
+		// Convert to a string
+		try
+		{
+			errorDescription = new String(contents.array(), "ASCII");
+		}
+		catch (UnsupportedEncodingException UEE)
+		{
+			System.err.println("unsupported encoding exception caught in ErrorMessage(ByteBuffer)");
+		}
+	}
 	else
-		errorDescription = new String(messagePayload, "ASCII");
+	{
+		// Use the placeholder error description
+		errorDescription = unspecifiedErrorDescription;
+	}
 }
 
 public String getErrorDescription()

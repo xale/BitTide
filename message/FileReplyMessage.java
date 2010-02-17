@@ -1,9 +1,11 @@
 package message;
 
+import java.nio.*;
+
 public class FileReplyMessage extends Message
 {
 
-public FileReplyMessage(byte[] messagePayload)
+public FileReplyMessage(ByteBuffer contents)
 {
 	// FIXME: WRITEME
 }
