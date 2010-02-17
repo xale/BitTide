@@ -10,8 +10,8 @@ public ErrorMessage(byte[] messagePayload)
 {
 	if (messagePayload.length == 0)
 		errorDescription = unspecifiedErrorMessage;
-	
-	// FIXME: WRITEME
+	else
+		errorDescription = new String(messagePayload, "ASCII");
 }
 
 public String getErrorDescription()
