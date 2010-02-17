@@ -148,6 +148,13 @@ public static void parseArguments(String[] args)
 	}
 }
 
+public static void logoutAndExit(int exitCode)
+{
+	// FIXME: WRITEME
+	
+	closeStreamsAndExit(exitCode);
+}
+
 public static void closeConnectionsAndExit(int exitCode)
 {
 	// Close the tracker connection
