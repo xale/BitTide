@@ -7,16 +7,15 @@ import message.*;
 
 public class Peer
 {
-	private static InetSocketAddress trackerAddress;
+	private static InetSocketAddress trackerAddress = null;
+	private static PeerToTrackerConnection trackerConnection = null;
 	
-	private static Socket trackerSocket;
-	private static InputStream read;
-	private static OutputStream write;
+	private static String username = null;
+	private static String password = null;
 	
-	private static String username;
-	private static String password;
+	private static URI downloadsDirectory = null;
 	
-	private static URI downloadsDirectory;
+	private static PeerListenerThread peerListener = null;
 
 public static void main(String[] args)
 {
@@ -31,32 +30,95 @@ public static void main(String[] args)
 		System.exit(1);
 	}
 	
-	// Open a listening port
-	// FIXME: WRITEME
+	// Create a thread to listen for incoming peer connections
+	try
+	{
+		System.out.print("Starting peer listener... ");
+		peerListener = new PeerListenerThread();
+		peerListener.start();
+		System.out.println("done");
+	}
+	catch (IOException E)
+	{
+		System.out.println();
+		System.err.println("error starting peer listener");
+		closeConnectionsAndExit(1);
+	}
 	
 	// Attempt to connect to the server
 	try
 	{
-		trackerSocket = new Socket(trackerAddress.getAddress(), trackerAddress.getPort());
-		write = trackerSocket.getOutputStream();
-		read = trackerSocket.getInputStream();
+		System.out.print("Connecting to tracker " + trackerAddress + "... ");
+		trackerConnection = new PeerToTrackerConnection(trackerAddress);
+		System.out.println("done");
 	}
 	catch (UnknownHostException UHE)
 	{
-		System.err.println("Cannot connect to host: " + trackerAddress.getAddress());
-		System.exit(1);
+		System.out.println();
+		System.err.println("error connecting to tracker: could not find host " + trackerAddress.getAddress());
+		closeConnectionsAndExit(1);
 	}
 	catch (IOException E)
 	{
-		System.err.println("Error getting streams to host " + trackerAddress.getAddress());
-		System.exit(1);
+		System.out.println();
+		System.err.println("error connecting to tracker: could not get streams to host " + trackerAddress.getAddress());
+		closeConnectionsAndExit(1);
 	}
 	
-	// Send a login message
+	// Create a login message
+	Message message = null;
+	try
+	{
+		// Create the message with the listener port, and the user's username and password
+		System.out.print("Logging in to tracker... ");
+		int port = peerListener.getListenSocket().getLocalPort();
+		message = new LoginMessage(port, username, password);
+	}
+	catch (IllegalArgumentException IAE)
+	{
+		System.out.println();
+		System.err.println("error logging in: " + IAE.getMessage());
+		closeConnectionsAndExit(1);
+	}
+	
+	// Send the message to the server
+	try
+	{
+		// Send the message
+		trackerConnection.sendMessage(message);
+		
+		// Wait for a response from the server
+		message = trackerConnection.nextMessage();
+		
+		System.out.println("done");
+	}
+	catch (ErrorMessageException EME)
+	{
+		System.out.println();
+		System.err.println("error logging in: " + EME.getMessage());
+		closeConnectionsAndExit(1);
+	}
+	catch (EOFException EOFE)
+	{
+		System.out.println();
+		System.err.println("error logging in: the tracker closed the connection");
+		closeConnectionsAndExit(1);
+	}
+	catch (IOException IOE)
+	{
+		System.out.println();
+		System.err.println("error logging in: a network error occurred: " + IOE.getMessage());
+		closeConnectionsAndExit(1);
+	}
+	
+	// Send the list of files we're serving to the server
 	// FIXME: WRITEME
 	
 	// Enter interactive loop
 	// FIXME: WRITEME
+	
+	// Close everything and exit
+	closeConnectionsAndExit(0);
 }
 
 public static void parseArguments(String[] args)
@@ -82,8 +144,48 @@ public static void parseArguments(String[] args)
 	catch (Exception e)
 	{
 		// If anything goes wrong, toss an IAE; main() will print the usage info and exit
-		throw new IllegalArgumentException("Error parsing command-line arguments");
+		throw new IllegalArgumentException("error parsing command-line arguments");
 	}
+}
+
+public static void closeConnectionsAndExit(int exitCode)
+{
+	// Close the tracker connection
+	if ((trackerConnection != null) && !trackerConnection.isClosed())
+	{
+		try
+		{
+			System.out.print("Shutting down connection to tracker... ");
+			trackerConnection.close();
+			System.out.println("done");
+		}
+		catch (Exception E)
+		{
+			System.out.println();
+			E.printStackTrace();
+		}
+	}
+	
+	// Shut down the listener
+	if ((peerListener != null) && peerListener.isAlive())
+	{
+		try
+		{
+			System.out.print("Shutting down peer listener... ");
+			peerListener.setListening(false);
+			peerListener.join();
+			System.out.println("done");
+		}
+		catch (Exception E)
+		{
+			System.out.println();
+			E.printStackTrace();
+		}
+	}
+	
+	System.out.println("Connections closed, exiting");
+	
+	System.exit(exitCode);
 }
 
 public static void usage()

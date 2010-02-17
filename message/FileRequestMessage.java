@@ -2,11 +2,15 @@ package message;
 
 public class FileRequestMessage extends Message
 {
-	private static byte FileRequestMessageCode = 9;
-	
-public byte getMessageCode()
+
+public FileRequestMessage(byte[] messagePayload)
 {
-	return FileRequestMessageCode;
+	// FIXME: WRITEME
+}
+
+public MessageCode getMessageCode()
+{
+	return MessageCode.FileRequestMessageCode;
 }
 
 public byte[] getRawMessage()

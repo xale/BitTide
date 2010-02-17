@@ -2,11 +2,15 @@ package message;
 
 public class SearchReplyMessage extends Message
 {
-	private static byte SearchReplyMessageCode = 4;
-	
-public byte getMessageCode()
+
+public SearchReplyMessage(byte[] messagePayload)
 {
-	return SearchReplyMessageCode;
+	// FIXME: WRITEME
+}
+
+public MessageCode getMessageCode()
+{
+	return MessageCode.SearchReplyMessageCode;
 }
 
 public byte[] getRawMessage()

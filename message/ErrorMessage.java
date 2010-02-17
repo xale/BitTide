@@ -2,11 +2,26 @@ package message;
 
 public class ErrorMessage extends Message
 {
-	private static byte ErrorMessageCode = 8;
+	private static final String unspecifiedErrorMessage = "the tracker reported an unknown error";
+	
+	private String errorDescription;
 
-public byte getMessageCode()
+public ErrorMessage(byte[] messagePayload)
 {
-	return ErrorMessageCode;
+	if (messagePayload.length == 0)
+		errorDescription = unspecifiedErrorMessage;
+	
+	// FIXME: WRITEME
+}
+
+public String getErrorDescription()
+{
+	return errorDescription;
+}
+
+public MessageCode getMessageCode()
+{
+	return MessageCode.ErrorMessageCode;
 }
 
 public byte[] getRawMessage()

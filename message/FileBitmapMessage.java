@@ -2,11 +2,15 @@ package message;
 
 public class FileBitmapMessage extends Message
 {
-	private static byte FileBitmapMessageCode = 6;
-	
-public byte getMessageCode()
+
+public FileBitmapMessage(byte[] messagePayload)
 {
-	return FileBitmapMessageCode;
+	// FIXME: WRITEME
+}
+
+public MessageCode getMessageCode()
+{
+	return MessageCode.FileBitmapMessageCode;
 }
 
 public byte[] getRawMessage()

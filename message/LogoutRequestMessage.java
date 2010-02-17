@@ -2,11 +2,15 @@ package message;
 
 public class LogoutRequestMessage extends Message
 {
-	private static byte LogoutRequestMessageCode = 7;
-	
-public byte getMessageCode()
+
+public LogoutRequestMessage(byte[] messagePayload)
 {
-	return LogoutRequestMessageCode;
+	// FIXME: WRITEME
+}
+
+public MessageCode getMessageCode()
+{
+	return MessageCode.LogoutRequestMessageCode;
 }
 
 public byte[] getRawMessage()
