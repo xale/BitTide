@@ -58,10 +58,10 @@ public static void main(String[] args)
 		System.err.println("error connecting to tracker: could not find host " + trackerAddress.getAddress());
 		closeConnectionsAndExit(1);
 	}
-	catch (IOException E)
+	catch (IOException IOE)
 	{
 		System.out.println();
-		System.err.println("error connecting to tracker: could not get streams to host " + trackerAddress.getAddress());
+		System.err.println("error connecting to tracker: " + IOE.getMessage());
 		closeConnectionsAndExit(1);
 	}
 	
@@ -152,7 +152,7 @@ public static void logoutAndExit(int exitCode)
 {
 	// FIXME: WRITEME
 	
-	closeStreamsAndExit(exitCode);
+	closeConnectionsAndExit(exitCode);
 }
 
 public static void closeConnectionsAndExit(int exitCode)
