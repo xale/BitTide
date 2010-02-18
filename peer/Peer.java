@@ -15,6 +15,7 @@ public class Peer
 	
 	private static URI downloadsDirectory = null;
 	
+	private static int listenPort = 0;
 	private static PeerListenerThread peerListener = null;
 
 public static void main(String[] args)
@@ -34,14 +35,14 @@ public static void main(String[] args)
 	try
 	{
 		System.out.print("Starting peer listener... ");
-		peerListener = new PeerListenerThread();
+		peerListener = new PeerListenerThread(listenPort);
 		peerListener.start();
 		System.out.println("done");
 	}
-	catch (IOException E)
+	catch (IOException IOE)
 	{
 		System.out.println();
-		System.err.println("error starting peer listener");
+		System.err.println("error starting peer listener: " + IOE.getMessage());
 		closeConnectionsAndExit(1);
 	}
 	
@@ -118,7 +119,7 @@ public static void main(String[] args)
 	// FIXME: WRITEME
 	
 	// Close everything and exit
-	closeConnectionsAndExit(0);
+	logoutAndExit(0);
 }
 
 public static void parseArguments(String[] args)
@@ -131,13 +132,16 @@ public static void parseArguments(String[] args)
 		Integer port = Integer.parseInt(args[1]);
 		trackerAddress = new InetSocketAddress(ip, port);
 		
+		// Get the peer listening port
+		listenPort = Integer.parseInt(args[2]);
+		
 		// Get the username and password
-		username = args[2];
-		password = args[3];
+		username = args[3];
+		password = args[4];
 		
 		// Get the downloads directory (if present)
-		if (args.length > 4)
-			downloadsDirectory = new URI(args[4]);
+		if (args.length > 5)
+			downloadsDirectory = new URI(args[5]);
 		else
 			downloadsDirectory = null;
 	}
@@ -198,7 +202,7 @@ public static void closeConnectionsAndExit(int exitCode)
 public static void usage()
 {
 	System.out.println("BitTide Interactive Peer Client");
-	System.out.println("usage: java peer.Peer <tracker address> <tracker port> <username> <password> [downloads directory]");
+	System.out.println("usage: java peer.Peer <tracker address> <tracker port> <peer listen port> <username> <password> <downloads directory>");
 }
 
 }
