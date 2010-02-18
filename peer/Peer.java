@@ -8,9 +8,8 @@ import message.*;
 public class Peer
 {
 	private static final int MAX_PORT_VALUE = 0x0000FFFF;	// 65535
-
-	private static InetSocketAddress trackerAddress = null;
-	private static PeerToTrackerConnection trackerConnection = null;
+	
+	private static PeerToTrackerConnection tracker = null;
 	
 	private static String username = null;
 	private static String password = null;
@@ -54,50 +53,17 @@ public static void main(String[] args)
 		closeConnectionsAndExit(1);
 	}
 	
-	// Attempt to connect to the server
+	// Log in to the tracker
 	try
 	{
-		System.out.print("Connecting to tracker " + trackerAddress + "... ");
-		trackerConnection = new PeerToTrackerConnection(trackerAddress);
-		System.out.println("done");
-	}
-	catch (UnknownHostException UHE)
-	{
-		System.out.println();
-		System.err.println("error connecting to tracker: could not find host " + trackerAddress.getAddress());
-		closeConnectionsAndExit(1);
-	}
-	catch (IOException IOE)
-	{
-		System.out.println();
-		System.err.println("error connecting to tracker: " + IOE.getMessage());
-		closeConnectionsAndExit(1);
-	}
-	
-	// Create a login message
-	Message message = null;
-	try
-	{
-		// Create the message with the listener port, and the user's username and password
-		System.out.print("Logging in to tracker... ");
-		int port = peerListener.getListenSocket().getLocalPort();
-		message = new LoginMessage(port, username, password);
-	}
-	catch (IllegalArgumentException IAE)
-	{
-		System.out.println();
-		System.err.println("error logging in: " + IAE.getMessage());
-		closeConnectionsAndExit(1);
-	}
-	
-	// Send the message to the server
-	try
-	{
-		// Send the message
-		trackerConnection.sendMessage(message);
+		System.out.print("Logging in to tracker " + tracker.getAddress() + "... ");
 		
-		// Wait for a response from the server
-		message = trackerConnection.nextMessage();
+		// Create a login message with the listener port, and the user's username and password
+		int port = peerListener.getListenSocket().getLocalPort();
+		Message message = new LoginMessage(port, username, password);
+		
+		// Attempt to send the message, and get the tracker's reply
+		Message loginReply = tracker.sendMessage(message);
 		
 		System.out.println("done");
 	}
@@ -138,7 +104,7 @@ public static void parseArguments(String[] args)
 		// Attempt to parse and look up the tracker address
 		InetAddress address = InetAddress.getByName(args[0]);
 		int port = Integer.parseInt(args[1]);
-		trackerAddress = new InetSocketAddress(address, port);
+		tracker = new PeerToTrackerConnection(new InetSocketAddress(address, port));
 	}
 	catch (UnknownHostException UHE)
 	{
@@ -191,23 +157,7 @@ public static void logoutAndExit(int exitCode)
 
 public static void closeConnectionsAndExit(int exitCode)
 {
-	// Close the tracker connection
-	if ((trackerConnection != null) && !trackerConnection.isClosed())
-	{
-		try
-		{
-			System.out.print("Shutting down connection to tracker... ");
-			trackerConnection.close();
-			System.out.println("done");
-		}
-		catch (Exception E)
-		{
-			System.out.println();
-			E.printStackTrace();
-		}
-	}
-	
-	// Shut down the listener
+	// Shut down the peer listener
 	if ((peerListener != null) && peerListener.isAlive())
 	{
 		try
