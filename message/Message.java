@@ -92,6 +92,6 @@ public static Message nextMessageFromStream(DataInputStream stream)
 
 public abstract MessageCode getMessageCode();
 
-public abstract byte[] getRawMessage();
+public abstract ByteBuffer getRawMessage();
 
 }

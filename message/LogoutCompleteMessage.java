@@ -15,7 +15,7 @@ public MessageCode getMessageCode()
 	return MessageCode.LogoutCompleteMessageCode;
 }
 
-public byte[] getRawMessage()
+public ByteBuffer getRawMessage()
 {
 	// FIXME: WRITEME
 	return null;

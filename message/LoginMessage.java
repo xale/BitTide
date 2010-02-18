@@ -72,7 +72,7 @@ public MessageCode getMessageCode()
 	return MessageCode.LoginMessageCode;
 }
 
-public byte[] getRawMessage()
+public ByteBuffer getRawMessage()
 {
 	// FIXME: WRITEME
 	return null;

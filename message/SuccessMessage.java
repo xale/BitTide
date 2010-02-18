@@ -1,5 +1,7 @@
 package message;
 
+import java.nio.*;
+
 public class SuccessMessage extends Message
 {
 
@@ -13,7 +15,7 @@ public MessageCode getMessageCode()
 	return MessageCode.SuccessMessageCode;
 }
 
-public byte[] getRawMessage()
+public ByteBuffer getRawMessage()
 {
 	// FIXME: WRITEME
 	return null;

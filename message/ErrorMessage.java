@@ -51,7 +51,7 @@ public MessageCode getMessageCode()
 	return MessageCode.ErrorMessageCode;
 }
 
-public byte[] getRawMessage()
+public ByteBuffer getRawMessage()
 {
 	// FIXME: WRITEME
 	return null;
