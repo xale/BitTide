@@ -5,9 +5,9 @@ import java.nio.*;
 
 public class LoginMessage extends Message
 {
-	private static final int PORT_FIELD_WIDTH = Short.SIZE;			// Two bytes
-	private static final int PASSWORD_FIELD_WIDTH = Integer.SIZE;	// Four bytes
-	private static final long MAX_PASSWORD_VALUE = (0xFFFFFFFFL);
+	private static final int PORT_FIELD_WIDTH =		Short.SIZE;		// Two bytes
+	private static final int PASSWORD_FIELD_WIDTH =	Integer.SIZE;	// Four bytes
+	private static final long MAX_PASSWORD_VALUE =	(0xFFFFFFFFL);
 	
 	private int listenPort;
 	private String username;
@@ -38,7 +38,7 @@ public LoginMessage(int peerListenPort, String peerName, String peerPass)
 public LoginMessage(ByteBuffer contents)
 {
 	// Read the peer's listen port
-	listenPort = (int)(contents.getShort() & 0x0000FFFF);
+	listenPort = (contents.getShort() & 0x0000FFFF);
 	
 	// Read the peer's username
 	byte[] usernameBuffer = new byte[(contents.array().length - (PORT_FIELD_WIDTH + PASSWORD_FIELD_WIDTH))];
@@ -55,7 +55,7 @@ public LoginMessage(ByteBuffer contents)
 	}
 	
 	// Read the password
-	password = (long)(contents.getInt() & 0xFFFFFFFFL);
+	password = (contents.getInt() & 0xFFFFFFFFL);
 }
 
 public int getListenPort()
