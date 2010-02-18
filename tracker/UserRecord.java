@@ -10,16 +10,16 @@ import tracker.LogState;
 
 public class UserRecord
 {
-	private final int userID;
+	private final String userID;
 	private final String password;
 	private final InetSocketAddress address;
 	private Set<String> fileNames;
 	private LogState logState;
 
 	/**
-	  * @return a finalized int.
+	  * @return a finalized String.
 	  */
-	public int getUserID()
+	public String getUserID()
 	{
 		return userID;
 	}
@@ -72,11 +72,11 @@ public class UserRecord
 	public UserRecord(String dbString)
 	{
 		Scanner scanner = new Scanner(dbString);
-		if (! scanner.hasNextInt())
+		if (! scanner.hasNext())
 		{
-			throw new IllegalArgumentException("String does not start with an int.");
+			throw new IllegalArgumentException("String does not have a username field.");
 		}
-		userID = scanner.nextInt();
+		userID = scanner.next();
 		if (! scanner.hasNext())
 		{
 			throw new IllegalArgumentException("String does not have a password field.");
