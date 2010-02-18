@@ -5,9 +5,9 @@ import message.*;
 public class ErrorMessageException extends Exception
 {
 
-public ErrorMessageException(String message)
+public ErrorMessageException(ErrorMessage message)
 {
-	super(message);
+	super(message.getErrorDescription());
 }
 
 }
