@@ -7,6 +7,8 @@ import message.*;
 
 public class Peer
 {
+	private static final int MAX_PORT_VALUE = 0x0000FFFF;	// 65535
+
 	private static InetSocketAddress trackerAddress = null;
 	private static PeerToTrackerConnection trackerConnection = null;
 	
@@ -26,6 +28,12 @@ public static void main(String[] args)
 		parseArguments(args);
 	}
 	catch (IllegalArgumentException badArgs)
+	{
+		System.err.println("error parsing command-line arguments: " + badArgs.getMessage());
+		usage();
+		System.exit(1);
+	}
+	catch (IndexOutOfBoundsException OOB)
 	{
 		usage();
 		System.exit(1);
@@ -123,32 +131,54 @@ public static void main(String[] args)
 }
 
 public static void parseArguments(String[] args)
-	throws IllegalArgumentException
+	throws IllegalArgumentException, IndexOutOfBoundsException
 {
 	try
 	{
-		// Attempt to parse the tracker address
-		InetAddress ip = InetAddress.getByName(args[0]);
-		Integer port = Integer.parseInt(args[1]);
-		trackerAddress = new InetSocketAddress(ip, port);
-		
+		// Attempt to parse and look up the tracker address
+		InetAddress address = InetAddress.getByName(args[0]);
+		int port = Integer.parseInt(args[1]);
+		trackerAddress = new InetSocketAddress(address, port);
+	}
+	catch (UnknownHostException UHE)
+	{
+		throw new IllegalArgumentException("could not find host " + args[0]);
+	}
+	catch (NumberFormatException NFE)
+	{
+		throw new IllegalArgumentException("<tracker port> must be an integer between 0 and " + MAX_PORT_VALUE + ", inclusive");
+	}
+	catch (IllegalArgumentException IAE)
+	{
+		throw new IllegalArgumentException("<tracker port> must be an integer between 0 and " + MAX_PORT_VALUE + ", inclusive");
+	}
+	
+	try
+	{
 		// Get the peer listening port
 		listenPort = Integer.parseInt(args[2]);
 		
-		// Get the username and password
-		username = args[3];
-		password = args[4];
-		
-		// Get the downloads directory (if present)
-		if (args.length > 5)
-			downloadsDirectory = new URI(args[5]);
-		else
-			downloadsDirectory = null;
+		// Check for a valid port number
+		if ((listenPort < 0) || (listenPort > MAX_PORT_VALUE))
+			throw new NumberFormatException();
 	}
-	catch (Exception e)
+	catch (NumberFormatException NFE)
 	{
-		// If anything goes wrong, toss an IAE; main() will print the usage info and exit
-		throw new IllegalArgumentException("error parsing command-line arguments");
+		throw new IllegalArgumentException("<peer listen port> must be an integer between 0 and " + MAX_PORT_VALUE + ", inclusive");
+	}
+	
+	// Get the username and password
+	username = args[3];
+	password = args[4];
+	
+	try
+	{
+		// Get the downloads directory
+		downloadsDirectory = new URI(args[5]);
+	}
+	catch (URISyntaxException URI)
+	{
+		throw new IllegalArgumentException("<downloads directory> must be a valid path");
 	}
 }
 
@@ -201,7 +231,6 @@ public static void closeConnectionsAndExit(int exitCode)
 
 public static void usage()
 {
-	System.out.println("BitTide Interactive Peer Client");
 	System.out.println("usage: java peer.Peer <tracker address> <tracker port> <peer listen port> <username> <password> <downloads directory>");
 }
 
