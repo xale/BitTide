@@ -9,6 +9,16 @@ public class ErrorMessage extends Message
 	
 	private String errorDescription;
 
+public ErrorMessage(String description)
+{
+	errorDescription = description;
+}
+
+public ErrorMessage()
+{
+	this(unspecifiedErrorDescription);
+}
+
 public ErrorMessage(ByteBuffer contents)
 {
 	// Check if the message contains an error description

@@ -15,7 +15,13 @@ public class SearchReplyMessage extends Message
 	
 	private long fileSize;
 	private SearchReplyPeerEntry[] peerResults;
-	
+
+public SearchReplyMessage(long sizeOfFile, SearchReplyPeerEntry[] peers)
+{
+	fileSize = sizeOfFile;
+	peerResults = peers;
+}
+
 public SearchReplyMessage(ByteBuffer contents)
 {
 	// Retrieve the size of the file
