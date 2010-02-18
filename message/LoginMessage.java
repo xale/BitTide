@@ -7,32 +7,24 @@ public class LoginMessage extends Message
 {
 	private static final int PORT_FIELD_WIDTH =		Short.SIZE;		// Two bytes
 	private static final int PASSWORD_FIELD_WIDTH =	Integer.SIZE;	// Four bytes
-	private static final long MAX_PASSWORD_VALUE =	(0xFFFFFFFFL);
+	private static final int MAX_PASSWORD_LENGTH =	PASSWORD_FIELD_WIDTH;
 	
 	private int listenPort;
 	private String username;
-	private long password;
+	private String password;
 
 public LoginMessage(int peerListenPort, String peerName, String peerPass)
 	throws IllegalArgumentException
 {
-	try
+	// Check the length of the password (assuming one-byte characters; no unicode support)
+	if (peerPass.length() > MAX_PASSWORD_LENGTH)
 	{
-		// Attempt to parse the password as a long
-		password = Long.parseLong(peerPass);
-		
-		// Check that the password is a valid size
-		if ((password < 0) || (password > MAX_PASSWORD_VALUE))
-			throw new NumberFormatException();
-	}
-	catch (NumberFormatException NFE)
-	{
-		throw new IllegalArgumentException("password must be an integer between 0 and " + MAX_PASSWORD_VALUE + ", inclusive");
+		throw new IllegalArgumentException("password must be four bytes or less in length");
 	}
 	
 	listenPort = peerListenPort;
-	username = username;
-	password = password;
+	username = peerName;
+	password = peerPass;
 }
 
 public LoginMessage(ByteBuffer contents)
@@ -44,18 +36,20 @@ public LoginMessage(ByteBuffer contents)
 	byte[] usernameBuffer = new byte[(contents.array().length - (PORT_FIELD_WIDTH + PASSWORD_FIELD_WIDTH))];
 	contents.get(usernameBuffer);
 	
-	// Convert to a string
+	// Read the password
+	byte[] passwordBuffer = new byte[PASSWORD_FIELD_WIDTH];
+	contents.get(passwordBuffer);
+	
+	// Convert username and password to strings
 	try
 	{
 		username = new String(usernameBuffer, "ASCII");
+		password = new String(passwordBuffer, "ASCII");
 	}
 	catch (UnsupportedEncodingException UEE)
 	{
 		System.err.println("unsupported encoding exception caught in LoginMessage(ByteBuffer)");
 	}
-	
-	// Read the password
-	password = (contents.getInt() & 0xFFFFFFFFL);
 }
 
 public int getListenPort()
@@ -68,7 +62,7 @@ public String getUsername()
 	return username;
 }
 
-public long getPassword()
+public String getPassword()
 {
 	return password;
 }
