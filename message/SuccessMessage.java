@@ -22,7 +22,7 @@ public long getRawMessageLength()
 
 public ByteBuffer getRawMessage()
 {
-	return ByteBuffer.allocate(this.getRawMessageLength()).put(this.getMessageCode().getCode());
+	return ByteBuffer.allocate((int)this.getRawMessageLength()).put(this.getMessageCode().getCode());
 }
 
 }

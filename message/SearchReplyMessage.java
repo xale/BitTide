@@ -59,7 +59,7 @@ public SearchReplyMessage(ByteBuffer contents)
 	}
 	
 	// Trim out bad entries
-	SearchReplyPeerEntry validResults = new SearchReplyPeerEntry[numValidResults];
+	SearchReplyPeerEntry[] validResults = new SearchReplyPeerEntry[numValidResults];
 	int j = 0;
 	for (int i = 0; i < numValidResults; i++)
 	{
