@@ -48,7 +48,7 @@ public LoginMessage(ByteBuffer contents)
 	}
 	catch (UnsupportedEncodingException UEE)
 	{
-		System.err.println("unsupported encoding exception caught in LoginMessage(ByteBuffer)");
+		System.err.println("warning: unsupported encoding exception caught in LoginMessage(ByteBuffer)");
 	}
 }
 
@@ -72,15 +72,35 @@ public MessageCode getMessageCode()
 	return MessageCode.LoginMessageCode;
 }
 
-public long getRawMessageLength()
+public int getRawMessageLength()
 {
 	return (Message.HEADER_LENGTH + PORT_FIELD_WIDTH + username.length() + PASSWORD_FIELD_WIDTH);
 }
 
 public ByteBuffer getRawMessage()
 {
-	// FIXME: WRITEME
-	return null;
+	// Create a buffer
+	ByteBuffer rawMessage = ByteBuffer.allocate(this.getRawMessageLength());
+	
+	// Write the message header
+	rawMessage.put(this.getMessageCode().getCode());
+	rawMessage.putLong((long)this.getRawMessageLength());
+	
+	// Write the listen port
+	rawMessage.putShort((short)this.getListenPort());
+	
+	// Write the username and password
+	try
+	{
+		rawMessage.put(username.getBytes("ASCII"));
+		rawMessage.put(password.getBytes("ASCII"));
+	}
+	catch (UnsupportedEncodingException UEE)
+	{
+		System.err.println("warning: unsupported encoding exception caught in LoginMessage.getRawMessage()");
+	}
+	
+	return rawMessage;
 }
 
 }

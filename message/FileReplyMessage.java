@@ -15,7 +15,7 @@ public MessageCode getMessageCode()
 	return MessageCode.FileReplyMessageCode;
 }
 
-public long getRawMessageLength()
+public int getRawMessageLength()
 {
 	// FIXME: WRITEME
 	return 0;
@@ -23,7 +23,15 @@ public long getRawMessageLength()
 
 public ByteBuffer getRawMessage()
 {
+	// Create a buffer
+	ByteBuffer rawMessage = ByteBuffer.allocate(this.getRawMessageLength());
+	
+	// Write the message header
+	rawMessage.put(this.getMessageCode().getCode());
+	rawMessage.putLong((long)this.getRawMessageLength());
+	
 	// FIXME: WRITEME
+	
 	return null;
 }
 

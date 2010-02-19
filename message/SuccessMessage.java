@@ -15,14 +15,14 @@ public MessageCode getMessageCode()
 	return MessageCode.SuccessMessageCode;
 }
 
-public long getRawMessageLength()
+public int getRawMessageLength()
 {
 	return Message.CODE_FIELD_WIDTH;
 }
 
 public ByteBuffer getRawMessage()
 {
-	return ByteBuffer.allocate((int)this.getRawMessageLength()).put(this.getMessageCode().getCode());
+	return ByteBuffer.allocate(this.getRawMessageLength()).put(this.getMessageCode().getCode());
 }
 
 }

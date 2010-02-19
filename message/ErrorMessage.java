@@ -16,7 +16,7 @@ public ErrorMessage(String description)
 
 public ErrorMessage()
 {
-	this(unspecifiedErrorDescription);
+	this("");
 }
 
 public ErrorMessage(ByteBuffer contents)
@@ -31,7 +31,7 @@ public ErrorMessage(ByteBuffer contents)
 		}
 		catch (UnsupportedEncodingException UEE)
 		{
-			System.err.println("unsupported encoding exception caught in ErrorMessage(ByteBuffer)");
+			System.err.println("warning: unsupported encoding exception caught in ErrorMessage(ByteBuffer)");
 		}
 	}
 	else
@@ -51,15 +51,37 @@ public MessageCode getMessageCode()
 	return MessageCode.ErrorMessageCode;
 }
 
-public long getRawMessageLength()
+public int getRawMessageLength()
 {
-	return (Message.HEADER_LENGTH + errorDescription.length());
+	if (errorDescription != null)
+		return (Message.HEADER_LENGTH + errorDescription.length());
+	
+	return Message.HEADER_LENGTH;
 }
 
 public ByteBuffer getRawMessage()
 {
-	// FIXME: WRITEME
-	return null;
+	// Allocate a buffer
+	ByteBuffer rawMessage = ByteBuffer.allocate(this.getRawMessageLength());
+	
+	// Write the message header
+	rawMessage.put(this.getMessageCode().getCode());
+	rawMessage.putLong((long)this.getRawMessageLength());
+	
+	// Write the error description, if present
+	if ((errorDescription != null) && (errorDescription.length() > 0))
+	{
+		try
+		{
+			rawMessage.put(errorDescription.getBytes("ASCII"));
+		}
+		catch (UnsupportedEncodingException UEE)
+		{
+			System.err.println("warning: unsupported encoding exception caught in ErrorMessage.getRawMessage()");
+		}
+	}
+	
+	return rawMessage;
 }
 
 }

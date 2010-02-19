@@ -11,7 +11,7 @@ public abstract class Message
 
 public abstract MessageCode getMessageCode();
 
-public abstract long getRawMessageLength();
+public abstract int getRawMessageLength();
 
 public abstract ByteBuffer getRawMessage();
 

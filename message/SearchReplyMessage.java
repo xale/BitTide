@@ -87,14 +87,22 @@ public MessageCode getMessageCode()
 	return MessageCode.SearchReplyMessageCode;
 }
 
-public long getRawMessageLength()
+public int getRawMessageLength()
 {
 	return (Message.HEADER_LENGTH + SIZE_FIELD_WIDTH + (peerResults.length * PEER_ENTRY_WIDTH));
 }
 
 public ByteBuffer getRawMessage()
 {
+	// Create a buffer
+	ByteBuffer rawMessage = ByteBuffer.allocate(this.getRawMessageLength());
+	
+	// Write the message header
+	rawMessage.put(this.getMessageCode().getCode());
+	rawMessage.putLong((long)this.getRawMessageLength());
+	
 	// FIXME: WRITEME
+	
 	return null;
 }
 
