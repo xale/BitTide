@@ -15,6 +15,12 @@ public MessageCode getMessageCode()
 	return MessageCode.FileRequestMessageCode;
 }
 
+public long getRawMessageLength()
+{
+	// FIXME: WRITEME
+	return 0;
+}
+
 public ByteBuffer getRawMessage()
 {
 	// FIXME: WRITEME

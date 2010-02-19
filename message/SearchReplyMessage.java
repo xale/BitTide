@@ -6,10 +6,10 @@ import java.util.*;
 
 public class SearchReplyMessage extends Message
 {
-	private static final int SIZE_FIELD_WIDTH =		Integer.SIZE;	// Four bytes
+	private static final int SIZE_FIELD_WIDTH =		(Integer.SIZE / Byte.SIZE);	// Four bytes
 	
-	private static final int IP_FIELD_WIDTH =		Integer.SIZE;	// Four bytes
-	private static final int PORT_FIELD_WIDTH =		Short.SIZE;		// Two bytes
+	private static final int IP_FIELD_WIDTH =		(Integer.SIZE / Byte.SIZE);	// Four bytes
+	private static final int PORT_FIELD_WIDTH =		(Short.SIZE / Byte.SIZE);	// Two bytes
 	private static final int BITMAP_FIELD_WIDTH = 	12;
 	private static final int PEER_ENTRY_WIDTH = IP_FIELD_WIDTH + PORT_FIELD_WIDTH + BITMAP_FIELD_WIDTH;
 	
@@ -32,6 +32,7 @@ public SearchReplyMessage(ByteBuffer contents)
 	
 	// Parse the entries
 	peerResults = new SearchReplyPeerEntry[numPeers];
+	int numValidResults = 0;
 	for (int i = 0; i < numPeers; i++)
 	{
 		try
@@ -49,12 +50,26 @@ public SearchReplyMessage(ByteBuffer contents)
 			
 			// Create the entry
 			peerResults[i] = new SearchReplyPeerEntry(ip, port, fileBitmap);
+			numValidResults++;
 		}
 		catch (UnknownHostException UHE)
 		{
 			peerResults[i] = null;
 		}
 	}
+	
+	// Trim out bad entries
+	SearchReplyPeerEntry validResults = new SearchReplyPeerEntry[numValidResults];
+	int j = 0;
+	for (int i = 0; i < numValidResults; i++)
+	{
+		if (peerResults[i] != null)
+		{
+			validResults[j] = peerResults[i];
+			j++;
+		}
+	}
+	peerResults = validResults;
 }
 
 public long getFileSize()
@@ -70,6 +85,11 @@ public SearchReplyPeerEntry[] getPeerResults()
 public MessageCode getMessageCode()
 {
 	return MessageCode.SearchReplyMessageCode;
+}
+
+public long getRawMessageLength()
+{
+	return (Message.HEADER_LENGTH + SIZE_FIELD_WIDTH + (peerResults.length * PEER_ENTRY_WIDTH));
 }
 
 public ByteBuffer getRawMessage()

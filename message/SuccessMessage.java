@@ -15,10 +15,14 @@ public MessageCode getMessageCode()
 	return MessageCode.SuccessMessageCode;
 }
 
+public long getRawMessageLength()
+{
+	return Message.CODE_FIELD_WIDTH;
+}
+
 public ByteBuffer getRawMessage()
 {
-	// FIXME: WRITEME
-	return null;
+	return ByteBuffer.allocate(this.getRawMessageLength()).put(this.getMessageCode().getCode());
 }
 
 }

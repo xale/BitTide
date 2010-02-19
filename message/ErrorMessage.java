@@ -51,6 +51,11 @@ public MessageCode getMessageCode()
 	return MessageCode.ErrorMessageCode;
 }
 
+public long getRawMessageLength()
+{
+	return (Message.HEADER_LENGTH + errorDescription.length());
+}
+
 public ByteBuffer getRawMessage()
 {
 	// FIXME: WRITEME
