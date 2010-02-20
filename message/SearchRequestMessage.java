@@ -1,13 +1,42 @@
 package message;
 
+import java.io.*;
 import java.nio.*;
 
 public class SearchRequestMessage extends Message
 {
+	private String filename;
+
+public SearchRequestMessage(String nameOfFile)
+	throws IllegalArgumentException
+{
+	// Check the length of the filename
+	if (nameOfFile.length() > Message.MAX_FILENAME_LENGTH)
+		throw new IllegalArgumentException("filename too long: " + nameOfFile);
+	
+	filename = nameOfFile;
+}
 
 public SearchRequestMessage(ByteBuffer contents)
 {
-	// FIXME: WRITEME
+	// The only contents are the filename; just read it out
+	byte[] rawFilename = new byte[contents.array().length];
+	contents.get(rawFilename);
+	
+	// Convert to a string
+	try
+	{
+		filename = new String(rawFilename, "ASCII");
+	}
+	catch (UnsupportedEncodingException UEE)
+	{
+		System.err.println("warning: unsupported encoding exception caught in SearchRequestMessage(ByteBuffer)");
+	}
+}
+
+public String getFilename()
+{
+	return filename;
 }
 
 public MessageCode getMessageCode()
@@ -17,8 +46,7 @@ public MessageCode getMessageCode()
 
 public int getRawMessageLength()
 {
-	// FIXME: WRITEME
-	return 0;
+	return Message.HEADER_LENGTH + filename.length();
 }
 
 public ByteBuffer getRawMessage()
@@ -30,9 +58,19 @@ public ByteBuffer getRawMessage()
 	rawMessage.put(this.getMessageCode().getCode());
 	rawMessage.putLong((long)this.getRawMessageLength());
 	
-	// FIXME: WRITEME
+	// Write the filename
+	try
+	{
+		rawMessage.put(filename.getBytes("ASCII"));
+	}
+	catch (UnsupportedEncodingException UEE)
+	{
+		System.err.println("warning: unsupported encoding exception caught in SearchRequestMessage.getRawMessage()");
+		
+		return null;
+	}
 	
-	return null;
+	return rawMessage;
 }
 
 }
