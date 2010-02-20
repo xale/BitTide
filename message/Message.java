@@ -10,6 +10,8 @@ public abstract class Message
 	public static final int HEADER_LENGTH = CODE_FIELD_WIDTH + LENGTH_FIELD_WIDTH;
 	
 	public static final long MAX_MESSAGE_LENGTH = ((16 * 1024) + 2) + HEADER_LENGTH;
+	
+	public static final int MAX_FILENAME_LENGTH = 255;
 
 public abstract MessageCode getMessageCode();
 

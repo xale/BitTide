@@ -6,7 +6,6 @@ import java.util.*;
 
 public class FileInfoMessage extends Message
 {
-	private static final int MAX_FILENAME_LENGTH =	255;
 	private static final int FILESIZE_FIELD_WIDTH =	4;
 	private static final int BITMAP_FIELD_WIDTH = 	FileBitmap.FILE_BITMAP_NUM_BYTES;
 	
@@ -14,14 +13,14 @@ public class FileInfoMessage extends Message
 	private long fileSize;
 	private FileBitmap fileBitmap;
 	
-public FileInfoMessage(String name, long size, FileBitmap bitmap)
+public FileInfoMessage(String nameOfFile, long size, FileBitmap bitmap)
 	throws IllegalArgumentException
 {
 	// Check the length of the filename
-	if (name.length() > MAX_FILENAME_LENGTH)
-		throw new IllegalArgumentException("filename too long: " + name);
+	if (nameOfFile.length() > Message.MAX_FILENAME_LENGTH)
+		throw new IllegalArgumentException("filename too long: " + nameOfFile);
 	
-	filename = name;
+	filename = nameOfFile;
 	fileSize = size;
 	fileBitmap = bitmap;
 }
@@ -100,9 +99,11 @@ public ByteBuffer getRawMessage()
 	catch (UnsupportedEncodingException UEE)
 	{
 		System.err.println("warning: unsupported encoding exception caught in FileInfoMessage.getRawMessage()");
+		
+		return null;
 	}
 	
-	return null;
+	return rawMessage;
 }
 
 }

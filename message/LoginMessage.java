@@ -98,6 +98,8 @@ public ByteBuffer getRawMessage()
 	catch (UnsupportedEncodingException UEE)
 	{
 		System.err.println("warning: unsupported encoding exception caught in LoginMessage.getRawMessage()");
+		
+		return null;
 	}
 	
 	return rawMessage;
