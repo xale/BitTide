@@ -6,10 +6,10 @@ import java.util.*;
 
 public class SearchReplyMessage extends Message
 {
-	private static final int SIZE_FIELD_WIDTH =		(Integer.SIZE / Byte.SIZE);	// Four bytes
+	private static final int FILESIZE_FIELD_WIDTH =	4;
 	
-	private static final int IP_FIELD_WIDTH =		(Integer.SIZE / Byte.SIZE);	// Four bytes
-	private static final int PORT_FIELD_WIDTH =		(Short.SIZE / Byte.SIZE);	// Two bytes
+	private static final int IP_FIELD_WIDTH =		4;
+	private static final int PORT_FIELD_WIDTH =		2;
 	private static final int BITMAP_FIELD_WIDTH = 	12;
 	private static final int PEER_ENTRY_WIDTH = IP_FIELD_WIDTH + PORT_FIELD_WIDTH + BITMAP_FIELD_WIDTH;
 	
@@ -28,7 +28,7 @@ public SearchReplyMessage(ByteBuffer contents)
 	fileSize = (contents.getInt() & 0xFFFFFFFFL);
 	
 	// Determine the number of peers returned in the search result
-	int numPeers = ((contents.array().length - SIZE_FIELD_WIDTH) / PEER_ENTRY_WIDTH);
+	int numPeers = ((contents.array().length - FILESIZE_FIELD_WIDTH) / PEER_ENTRY_WIDTH);
 	
 	// Parse the entries
 	peerResults = new SearchReplyPeerEntry[numPeers];
@@ -89,7 +89,7 @@ public MessageCode getMessageCode()
 
 public int getRawMessageLength()
 {
-	return (Message.HEADER_LENGTH + SIZE_FIELD_WIDTH + (peerResults.length * PEER_ENTRY_WIDTH));
+	return (Message.HEADER_LENGTH + FILESIZE_FIELD_WIDTH + (peerResults.length * PEER_ENTRY_WIDTH));
 }
 
 public ByteBuffer getRawMessage()

@@ -5,8 +5,8 @@ import java.nio.*;
 
 public class LoginMessage extends Message
 {
-	private static final int PORT_FIELD_WIDTH =		(Short.SIZE / Byte.SIZE);	// Two bytes
-	private static final int PASSWORD_FIELD_WIDTH =	(Integer.SIZE / Byte.SIZE);	// Four bytes
+	private static final int PORT_FIELD_WIDTH =		2;
+	private static final int PASSWORD_FIELD_WIDTH =	4;
 	private static final int MAX_PASSWORD_LENGTH =	PASSWORD_FIELD_WIDTH;
 	
 	private int listenPort;
