@@ -6,26 +6,22 @@ import java.util.*;
 public class SearchReplyPeerEntry
 {
 	private InetSocketAddress address;
-	private BitSet bitmap;
+	private FileBitmap fileBitmap;
 
-public SearchReplyPeerEntry(InetSocketAddress ipAddress, BitSet fileBitmap)
+public SearchReplyPeerEntry(InetSocketAddress ipAddress, FileBitmap bitmap)
 {
 	address = ipAddress;
-	bitmap = fileBitmap;
+	fileBitmap = bitmap;
 }
 
-public SearchReplyPeerEntry(byte[] ipAddress, int port, byte[] fileBitmap)
+public SearchReplyPeerEntry(byte[] ipAddress, int port, byte[] bitmap)
 	throws UnknownHostException
 {
 	// Create a socket address from the ip and port
 	address = new InetSocketAddress(InetAddress.getByAddress(ipAddress), port);
 	
-	// Convert the bitmap
-	bitmap = new BitSet(fileBitmap.length * Byte.SIZE);
-	for (int i = 0; i < bitmap.size(); i++)
-	{
-		bitmap.set(i, ((fileBitmap[(Byte.SIZE * i)] & (1 << (i % Byte.SIZE))) != 0));
-	}
+	// Create the file bitmap
+	fileBitmap = new FileBitmap(bitmap);
 }
 
 public InetSocketAddress getAddress()
@@ -33,9 +29,9 @@ public InetSocketAddress getAddress()
 	return address;
 }
 
-public BitSet getFileBitmap()
+public FileBitmap getFileBitmap()
 {
-	return bitmap;
+	return fileBitmap;
 }
 
 }

@@ -10,7 +10,7 @@ public class SearchReplyMessage extends Message
 	
 	private static final int IP_FIELD_WIDTH =		4;
 	private static final int PORT_FIELD_WIDTH =		2;
-	private static final int BITMAP_FIELD_WIDTH = 	12;
+	private static final int BITMAP_FIELD_WIDTH = 	FileBitmap.FILE_BITMAP_NUM_BYTES;
 	private static final int PEER_ENTRY_WIDTH = IP_FIELD_WIDTH + PORT_FIELD_WIDTH + BITMAP_FIELD_WIDTH;
 	
 	private long fileSize;
@@ -101,6 +101,7 @@ public ByteBuffer getRawMessage()
 	rawMessage.put(this.getMessageCode().getCode());
 	rawMessage.putLong((long)this.getRawMessageLength());
 	
+	// Write the peer result entries
 	// FIXME: WRITEME
 	
 	return null;
