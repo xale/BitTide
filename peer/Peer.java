@@ -82,7 +82,7 @@ public static void main(String[] args)
 	catch (IOException IOE)
 	{
 		System.out.println();
-		System.err.println("error logging in: a network error occurred: " + IOE.getMessage());
+		System.err.println("could not log in, a network error occurred: " + IOE.getMessage());
 		closeConnectionsAndExit(1);
 	}
 	
@@ -99,6 +99,10 @@ public static void main(String[] args)
 public static void parseArguments(String[] args)
 	throws IllegalArgumentException, IndexOutOfBoundsException
 {
+	// Check for the right number of arguments
+	if (args.length != 6)
+		throw new IndexOutOfBoundsException();
+	
 	try
 	{
 		// Attempt to parse and look up the tracker address
