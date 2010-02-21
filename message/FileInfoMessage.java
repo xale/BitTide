@@ -6,9 +6,6 @@ import java.util.*;
 
 public class FileInfoMessage extends Message
 {
-	private static final int FILESIZE_FIELD_WIDTH =	4;
-	private static final int BITMAP_FIELD_WIDTH = 	FileBitmap.FILE_BITMAP_NUM_BYTES;
-	
 	private String filename;
 	private long fileSize;
 	private FileBitmap fileBitmap;
@@ -31,12 +28,12 @@ public FileInfoMessage(ByteBuffer contents)
 	fileSize = ByteBufferUtils.getUnsignedIntFrom(contents);
 	
 	// Read the bitmap
-	byte[] bitmap = new byte[BITMAP_FIELD_WIDTH];
+	byte[] bitmap = new byte[Message.BITMAP_FIELD_WIDTH];
 	contents.get(bitmap);
 	fileBitmap = new FileBitmap(bitmap);
 	
 	// Read the file name
-	int nameLength = contents.array().length - (FILESIZE_FIELD_WIDTH + BITMAP_FIELD_WIDTH);
+	int nameLength = contents.array().length - (Message.FILESIZE_FIELD_WIDTH + Message.BITMAP_FIELD_WIDTH);
 	byte[] rawFilename = new byte[nameLength];
 	contents.get(rawFilename);
 	

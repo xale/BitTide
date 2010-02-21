@@ -13,7 +13,7 @@ public FileReplyMessage(ByteBuffer contents)
 	blockIndex = ByteBufferUtils.getUnsignedShortFrom(contents);
 	
 	// Slice the rest of the message into a new buffer
-	byte[] rawContents = new byte[contents.array().length - Message.BLOCK_INDEX_FIELD_WIDTH];
+	byte[] rawContents = new byte[contents.array().length - Message.BLOCKINDEX_FIELD_WIDTH];
 	contents.get(rawContents);
 	blockContents = ByteBuffer.wrap(rawContents);
 }
@@ -35,7 +35,7 @@ public MessageCode getMessageCode()
 
 public int getRawMessageLength()
 {
-	return HEADER_LENGTH + Message.BLOCK_INDEX_FIELD_WIDTH + blockContents.array().length;
+	return Message.HEADER_LENGTH + Message.BLOCKINDEX_FIELD_WIDTH + blockContents.array().length;
 }
 
 public ByteBuffer getRawMessage()

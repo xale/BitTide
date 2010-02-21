@@ -5,9 +5,7 @@ import java.nio.*;
 
 public class LoginMessage extends Message
 {
-	private static final int PORT_FIELD_WIDTH =		2;
-	private static final int PASSWORD_FIELD_WIDTH =	4;
-	private static final int MAX_PASSWORD_LENGTH =	PASSWORD_FIELD_WIDTH;
+	private static final int MAX_PASSWORD_LENGTH =	Message.PASSWORD_FIELD_WIDTH;
 	
 	private int listenPort;
 	private String username;
@@ -33,11 +31,11 @@ public LoginMessage(ByteBuffer contents)
 	listenPort = ByteBufferUtils.getUnsignedShortFrom(contents);
 	
 	// Read the peer's username
-	byte[] usernameBuffer = new byte[(contents.array().length - (PORT_FIELD_WIDTH + PASSWORD_FIELD_WIDTH))];
+	byte[] usernameBuffer = new byte[(contents.array().length - (Message.PORT_FIELD_WIDTH + Message.PASSWORD_FIELD_WIDTH))];
 	contents.get(usernameBuffer);
 	
 	// Read the password
-	byte[] passwordBuffer = new byte[PASSWORD_FIELD_WIDTH];
+	byte[] passwordBuffer = new byte[Message.PASSWORD_FIELD_WIDTH];
 	contents.get(passwordBuffer);
 	
 	// Convert username and password to strings
@@ -74,7 +72,7 @@ public MessageCode getMessageCode()
 
 public int getRawMessageLength()
 {
-	return (Message.HEADER_LENGTH + PORT_FIELD_WIDTH + username.length() + PASSWORD_FIELD_WIDTH);
+	return (Message.HEADER_LENGTH + Message.PORT_FIELD_WIDTH + username.length() + Message.PASSWORD_FIELD_WIDTH);
 }
 
 public ByteBuffer getRawMessage()

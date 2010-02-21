@@ -6,12 +6,7 @@ import java.util.*;
 
 public class SearchReplyMessage extends Message
 {
-	private static final int FILESIZE_FIELD_WIDTH =	4;
-	
-	private static final int IP_FIELD_WIDTH =		4;
-	private static final int PORT_FIELD_WIDTH =		2;
-	private static final int BITMAP_FIELD_WIDTH = 	FileBitmap.FILE_BITMAP_NUM_BYTES;
-	private static final int PEER_ENTRY_WIDTH = IP_FIELD_WIDTH + PORT_FIELD_WIDTH + BITMAP_FIELD_WIDTH;
+	private static final int PEER_ENTRY_WIDTH = Message.IP_FIELD_WIDTH + Message.PORT_FIELD_WIDTH + Message.BITMAP_FIELD_WIDTH;
 	
 	private long fileSize;
 	private SearchReplyPeerEntry[] peerResults;
@@ -28,7 +23,7 @@ public SearchReplyMessage(ByteBuffer contents)
 	fileSize = ByteBufferUtils.getUnsignedIntFrom(contents);
 	
 	// Determine the number of peers returned in the search result
-	int numPeers = ((contents.array().length - FILESIZE_FIELD_WIDTH) / PEER_ENTRY_WIDTH);
+	int numPeers = ((contents.array().length - Message.FILESIZE_FIELD_WIDTH) / PEER_ENTRY_WIDTH);
 	
 	// Parse the entries
 	peerResults = new SearchReplyPeerEntry[numPeers];
@@ -38,14 +33,14 @@ public SearchReplyMessage(ByteBuffer contents)
 		try
 		{
 			// Read the peer's ip address
-			byte[] ip = new byte[IP_FIELD_WIDTH];
+			byte[] ip = new byte[Message.IP_FIELD_WIDTH];
 			contents.get(ip);
 			
 			// Read the peer's listening port
 			int port = ByteBufferUtils.getUnsignedShortFrom(contents);
 			
 			// Read the peer's bitmap of the file
-			byte[] fileBitmap = new byte[BITMAP_FIELD_WIDTH];
+			byte[] fileBitmap = new byte[Message.BITMAP_FIELD_WIDTH];
 			contents.get(fileBitmap);
 			
 			// Create the entry
@@ -89,7 +84,7 @@ public MessageCode getMessageCode()
 
 public int getRawMessageLength()
 {
-	return (Message.HEADER_LENGTH + FILESIZE_FIELD_WIDTH + (peerResults.length * PEER_ENTRY_WIDTH));
+	return (Message.HEADER_LENGTH + Message.FILESIZE_FIELD_WIDTH + (peerResults.length * PEER_ENTRY_WIDTH));
 }
 
 public ByteBuffer getRawMessage()

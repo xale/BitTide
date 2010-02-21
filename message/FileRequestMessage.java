@@ -37,7 +37,7 @@ public FileRequestMessage(String nameOfFile, int startIndex, int endIndex)
 public FileRequestMessage(ByteBuffer contents)
 {
 	// Read the filename
-	int nameLength = contents.array().length - (Message.BLOCK_INDEX_FIELD_WIDTH * 2);
+	int nameLength = contents.array().length - (Message.BLOCKINDEX_FIELD_WIDTH * 2);
 	byte[] rawFilename = new byte[nameLength];
 	contents.get(rawFilename);
 	
@@ -78,7 +78,7 @@ public MessageCode getMessageCode()
 
 public int getRawMessageLength()
 {
-	return Message.HEADER_LENGTH + filename.length() + (Message.BLOCK_INDEX_FIELD_WIDTH * 2);
+	return Message.HEADER_LENGTH + filename.length() + (Message.BLOCKINDEX_FIELD_WIDTH * 2);
 }
 
 public ByteBuffer getRawMessage()
