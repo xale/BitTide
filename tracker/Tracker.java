@@ -49,20 +49,34 @@ class Tracker
 
 		return new SuccessMessage();
 	}
-	public Message fileInfo(long file_size, FileBitmap fileBitmap, String filename)
+	public Message fileInfo(String username, String filename, long file_size, FileBitmap fileBitmap)
 	{
-		//TODO: logic
+		UserRecord user;
+		user = db.getUserRecordFromID(username);
+
+		assert (user != null); // this case should have been taken care of by previous methods.
+
+		user.addFilename(filename);
+		user.setFileBitmap(filename, fileBitmap);
+		user.setFileSize(filename, file_size);
+		return new SuccessMessage();
+	}
+	public Message fileBitmap(String filename, FileBitmap fileBitmap)
+	{
+		UserRecord user;
+		user = db.getUserRecordFromID(username);
+
+		assert (user != null); // this case should have been taken care of by previous methods.
+		assert (user.hasFilename(filename)); // same comment as above
+
+		user.setFileBitmap(filename, fileBitmap);
 		return new SuccessMessage();
 	}
 	public Message searchReq(String filename)
 	{
 		//TODO: logic
-		// SearchReplyPeerEntry[] peers
+		SearchReplyPeerEntry[] peers;
+		long sizeOfFile;
 		return new SearchReplyMessage(sizeOfFile, peers);
-	}
-	public Message fileBitmap(String filename, FileBitmap fileBitmap)
-	{
-		//TODO: logic
-		return new SuccessMessage();
 	}
 }

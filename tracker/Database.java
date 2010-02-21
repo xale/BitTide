@@ -60,7 +60,7 @@ public class Database
 		Scanner fileDBScanner = new Scanner(new File(fileDBPath));
 		fileDBScanner.useDelimiter("\n");
 
-		int userID;
+		String userID;
 		String filename;
 		Set<String> userIDs;
 		UserRecord userRecord;
@@ -85,9 +85,9 @@ public class Database
 			singleFileScanner = new Scanner(fileDBScanner.next());
 			filename = singleFileScanner.next();
 			userIDs = new HashSet<String>();
-			while (singleFileScanner.hasNextInt())
+			while (singleFileScanner.hasNext())
 			{
-				userID = singleFileScanner.nextInt();
+				userID = singleFileScanner.next();
 				userRecord = userDB.get(userID);
 
 				// the user does not exist

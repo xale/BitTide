@@ -15,6 +15,8 @@ public class UserRecord
 	private final String password;
 	private final InetSocketAddress address;
 	private Set<String> filenames;
+	private Map<String, FileBitmap> bitmaps;
+	private Map<String, Long> sizemaps;
 	private LogState logState;
 
 	/**
@@ -72,15 +74,23 @@ public class UserRecord
 	{
 		filenames.add(filename);
 		bitmaps.put(filename, new FileBitmap());
+		sizemaps.put(filename, Long.valueOf(0));
 	}
 	/**
-	  * @param filename The filename to add to the internal set.
+	  * Does not check that file exists
 	  * @param bitmap The bitmap to give it.
 	  */
-	public void addFilenameWithBitmap(String filename, FileBitmap bitmap)
+	public void setFileBitmap(String filename, FileBitmap bitmap)
 	{
-		filenames.add(filename);
 		bitmaps.put(filename, bitmap);
+	}
+	/**
+	  * Does not check that file exists
+	  * @param size The size to give it.
+	  */
+	public void setFileSize(String filename, long size)
+	{
+		sizemaps.put(filename, size);
 	}
 	/**
 	  * @param filename The filename to remove from the internal set.
@@ -89,6 +99,7 @@ public class UserRecord
 	{
 		filenames.remove(filename);
 		bitmaps.remove(filename);
+		sizemaps.remove(filename);
 	}
 	/**
 	  * @param dbString A single line of the file database.
