@@ -10,7 +10,7 @@ public class FileBitmap extends BitSet
 	public static final int FILE_BITMAP_SIZE = FILE_BITMAP_NUM_BYTES * Byte.SIZE;
 	
 /**
-* Creates a new FileBitmap using the contents of a byte array.
+* Creates a new FileBitmap using the contents of a byte array. The byte array should be twelve bytes in length, with the MSB of first byte representing the first block of the file, the next-most-signifigant bit representing the second block, etc.
 * @param bitmap the byte array containing the bitmap of the represented file
 */
 public FileBitmap(byte[] bitmap)
@@ -34,6 +34,14 @@ public FileBitmap(byte[] bitmap)
 public FileBitmap()
 {
 	super(FILE_BITMAP_SIZE);
+}
+
+/**
+* Get the number of blocks of the represented file that are in this bitmap; i.e., the number of bits set to true.
+*/
+public int getNumberOfBlocks()
+{
+	return super.cardinality();
 }
 
 public ByteBuffer getRawBitmap()
