@@ -30,7 +30,7 @@ public LoginMessage(int peerListenPort, String peerName, String peerPass)
 public LoginMessage(ByteBuffer contents)
 {
 	// Read the peer's listen port
-	listenPort = (contents.getShort() & 0x0000FFFF);
+	listenPort = ByteBufferUtils.getUnsignedShortFrom(contents);
 	
 	// Read the peer's username
 	byte[] usernameBuffer = new byte[(contents.array().length - (PORT_FIELD_WIDTH + PASSWORD_FIELD_WIDTH))];

@@ -25,7 +25,7 @@ public SearchReplyMessage(long sizeOfFile, SearchReplyPeerEntry[] peers)
 public SearchReplyMessage(ByteBuffer contents)
 {
 	// Retrieve the size of the file
-	fileSize = (contents.getInt() & 0xFFFFFFFFL);
+	fileSize = ByteBufferUtils.getUnsignedIntFrom();
 	
 	// Determine the number of peers returned in the search result
 	int numPeers = ((contents.array().length - FILESIZE_FIELD_WIDTH) / PEER_ENTRY_WIDTH);
@@ -42,7 +42,7 @@ public SearchReplyMessage(ByteBuffer contents)
 			contents.get(ip);
 			
 			// Read the peer's listening port
-			int port = (contents.getShort() & 0x0000FFFF);
+			int port = ByteBufferUtils.getUnsignedShortFrom(contents);
 			
 			// Read the peer's bitmap of the file
 			byte[] fileBitmap = new byte[BITMAP_FIELD_WIDTH];

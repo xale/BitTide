@@ -28,7 +28,7 @@ public FileInfoMessage(String nameOfFile, long size, FileBitmap bitmap)
 public FileInfoMessage(ByteBuffer contents)
 {
 	// Read the file size
-	fileSize = (contents.getInt() & 0xFFFFFFFFL);
+	fileSize = ByteBufferUtils.getUnsignedIntFrom(contents);
 	
 	// Read the bitmap
 	byte[] bitmap = new byte[BITMAP_FIELD_WIDTH];
