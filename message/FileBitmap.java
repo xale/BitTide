@@ -36,6 +36,14 @@ public FileBitmap()
 	super(FILE_BITMAP_SIZE);
 }
 
+/**
+* Get the number of blocks of the represented file that are in this bitmap; i.e., the number of bits set to true.
+*/
+public int getNumberOfBlocks()
+{
+	return super.cardinality();
+}
+
 public ByteBuffer getRawBitmap()
 {
 	// Create a byte array
