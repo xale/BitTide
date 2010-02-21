@@ -5,7 +5,6 @@ import java.util.Set;
 import java.util.Scanner;
 import java.lang.IllegalArgumentException;
 import java.util.HashSet;
-import tracker.LogState;
 
 public class UserRecord
 {
@@ -47,13 +46,13 @@ public class UserRecord
 	{
 		logState = LogState.login;
 	}
-	public void login()
+	public void logout()
 	{
 		logState = LogState.logout;
 	}
 	public void loginactive()
 	{
-		logState = LogState.loginactive;
+		logState = LogState.inactive;
 	}
 	/**
 	  * @param filename The filename to check against the internal set.
@@ -136,7 +135,7 @@ public class UserRecord
 		userID = uid;
 		password = pass;
 		address = addr;
-		filenames = new HashSet();
+		filenames = new HashSet<String>();
 		logState = LogState.logout;
 	}
 }

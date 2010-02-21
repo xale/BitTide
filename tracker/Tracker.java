@@ -1,9 +1,6 @@
 package tracker;
 
 import message.*;
-import tracker.UserRecord;
-import tracker.Database;
-import tracker.LogState;
 import java.net.InetSocketAddress;
 
 class Tracker
@@ -43,7 +40,7 @@ class Tracker
 			return new ErrorMessage("Unknown user");
 		}
 
-		if ( user.getLogState() =! LogState.login)
+		if (user.getLogState() != LogState.login)
 		{
 			return new ErrorMessage("Not logged in");
 		}
@@ -55,17 +52,17 @@ class Tracker
 	public Message fileInfo(long file_size, FileBitmap fileBitmap, String filename)
 	{
 		//TODO: logic
-		return SuccessMessage();
+		return new SuccessMessage();
 	}
 	public Message searchReq(String filename)
 	{
 		//TODO: logic
 		// SearchReplyPeerEntry[] peers
-		return SearchReplyMessage(sizeOfFile, peers);
+		return new SearchReplyMessage(sizeOfFile, peers);
 	}
 	public Message fileBitmap(String filename, FileBitmap fileBitmap)
 	{
 		//TODO: logic
-		return SuccessMessage();
+		return new SuccessMessage();
 	}
 }

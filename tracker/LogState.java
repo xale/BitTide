@@ -1,4 +1,5 @@
 package tracker;
+
 public enum LogState
 {
 	logout,

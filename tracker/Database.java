@@ -4,7 +4,6 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.HashSet;
 import java.util.Set;
-import tracker.UserRecord;
 import java.util.Scanner;
 import java.io.FileNotFoundException;
 import java.io.File;
@@ -18,7 +17,7 @@ public class Database
 	  * a set of user ids otherwise.
 	  * @param filename the name of the file to look up.
 	  */
-	public Set<String> getUserIDsFromFileName(String filename)
+	public Set<String> getUserIDsFromFilename(String filename)
 	{
 		return fileDB.get(filename);
 	}
@@ -27,9 +26,9 @@ public class Database
 	  * a set of user records otherwise.
 	  * @param filename the name of the file to look up.
 	  */
-	public Set<UserRecord> getUsersFromFileName(String filename)
+	public Set<UserRecord> getUsersFromFilename(String filename)
 	{
-		Set<String> userIDs = getUserIDsFromFileName(filename);
+		Set<String> userIDs = getUserIDsFromFilename(filename);
 		if (userIDs == null)
 		{
 			return null;
@@ -43,8 +42,8 @@ public class Database
 	}
 	public void addUser(UserRecord user)
 	{
-		userDB.add(user.getUserID(), user);
-		fileDB.add(user.getUserID(), new HashSet<String>());
+		userDB.put(user.getUserID(), user);
+		fileDB.put(user.getUserID(), new HashSet<String>());
 	}
 	/**
 	  * @return null if the user id doesn't exist, the record otherwise.
@@ -99,7 +98,7 @@ public class Database
 				else
 				{
 					// the user has this file
-					userRecord.addFileName(filename);
+					userRecord.addFilename(filename);
 					// this file has this user
 					userIDs.add(userID);
 				}
