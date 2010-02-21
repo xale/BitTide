@@ -66,7 +66,7 @@ public ByteBuffer getRawMessage()
 	
 	// Write the message header
 	rawMessage.put(this.getMessageCode().getCode());
-	rawMessage.putLong((long)this.getRawMessageLength());
+	rawMessage.putInt(this.getRawMessageLength());
 	
 	// Write the error description, if present
 	if ((errorDescription != null) && (errorDescription.length() > 0))

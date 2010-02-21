@@ -83,7 +83,7 @@ public ByteBuffer getRawMessage()
 	
 	// Write the message header
 	rawMessage.put(this.getMessageCode().getCode());
-	rawMessage.putLong((long)this.getRawMessageLength());
+	rawMessage.putInt(this.getRawMessageLength());
 	
 	// Write the file size
 	rawMessage.putInt((int)this.getFileSize());

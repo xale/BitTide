@@ -4,10 +4,28 @@ import java.nio.*;
 
 public class FileReplyMessage extends Message
 {
-
+	private int blockIndex;
+	private ByteBuffer blockContents;
+	
 public FileReplyMessage(ByteBuffer contents)
 {
-	// FIXME: WRITEME
+	// Read the index of this block
+	blockIndex = ByteBufferUtils.getUnsignedShortFrom(contents);
+	
+	// Slice the rest of the message into a new buffer
+	byte[] rawContents = new byte[contents.array().length - Message.BLOCK_INDEX_FIELD_WIDTH];
+	contents.get(rawContents);
+	blockContents = ByteBuffer.wrap(rawContents);
+}
+
+public int getBlockIndex()
+{
+	return blockIndex;
+}
+
+public ByteBuffer getBlockContents()
+{
+	return blockContents;
 }
 
 public MessageCode getMessageCode()
@@ -17,8 +35,7 @@ public MessageCode getMessageCode()
 
 public int getRawMessageLength()
 {
-	// FIXME: WRITEME
-	return 0;
+	return HEADER_LENGTH + Message.BLOCK_INDEX_FIELD_WIDTH + blockContents.array().length;
 }
 
 public ByteBuffer getRawMessage()
@@ -28,11 +45,15 @@ public ByteBuffer getRawMessage()
 	
 	// Write the message header
 	rawMessage.put(this.getMessageCode().getCode());
-	rawMessage.putLong((long)this.getRawMessageLength());
+	rawMessage.putInt(this.getRawMessageLength());
 	
-	// FIXME: WRITEME
+	// Write the block index
+	rawMessage.putShort((short)this.getBlockIndex());
 	
-	return null;
+	// Write the block contents
+	rawMessage.put(this.getBlockContents());
+	
+	return rawMessage;
 }
 
 }
