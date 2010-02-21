@@ -35,7 +35,7 @@ public Message readMessage()
 		return new SuccessMessage();
 	
 	// Otherwise, read the length field as an unsigned int
-	long messageLength = (super.readInt() & 0xffffffffL);
+	long messageLength = this.readUnsignedInt();
 	
 	// Check if the payload is longer than the maximum message length
 	if (messageLength > Message.MAX_MESSAGE_LENGTH)
@@ -89,6 +89,11 @@ public Message readMessage()
 	// Execution should never reach this point; an exception should have been thrown earlier if the message code was not a known code
 	
 	return null;
+}
+
+public long readUnsignedInt()
+{
+	return (super.readInt() & 0xFFFFFFFFL);
 }
 
 }
