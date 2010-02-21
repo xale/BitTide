@@ -1,7 +1,6 @@
 package tracker;
 
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.util.Set;
 import java.util.Scanner;
 import java.lang.IllegalArgumentException;
@@ -13,7 +12,7 @@ public class UserRecord
 	private final String userID;
 	private final String password;
 	private final InetSocketAddress address;
-	private Set<String> fileNames;
+	private Set<String> filenames;
 	private LogState logState;
 
 	/**
@@ -44,27 +43,39 @@ public class UserRecord
 	{
 		return logState;
 	}
+	public void login()
+	{
+		logState = LogState.login;
+	}
+	public void login()
+	{
+		logState = LogState.logout;
+	}
+	public void loginactive()
+	{
+		logState = LogState.loginactive;
+	}
 	/**
 	  * @param filename The filename to check against the internal set.
 	  * @return true if the internal set contains the filename, false otherwise.
 	  */
-	public boolean hasFileName(String filename)
+	public boolean hasFilename(String filename)
 	{
-		return fileNames.contains(filename);
+		return filenames.contains(filename);
 	}
 	/**
 	  * @param filename The filename to add to the internal set.
 	  */
-	public void addFileName(String filename)
+	public void addFilename(String filename)
 	{
-		fileNames.add(filename);
+		filenames.add(filename);
 	}
 	/**
 	  * @param filename The filename to remove from the internal set.
 	  */
-	public void removeFileName(String filename)
+	public void removeFilename(String filename)
 	{
-		fileNames.remove(filename);
+		filenames.remove(filename);
 	}
 	/**
 	  * @param dbString A single line of the file database.
@@ -93,10 +104,10 @@ public class UserRecord
 		}
 		int port = scanner.nextInt();
 		address = new InetSocketAddress(ip, port);
-		fileNames = new HashSet<String>();
+		filenames = new HashSet<String>();
 		while (scanner.hasNext())
 		{
-			fileNames.add(scanner.next());
+			filenames.add(scanner.next());
 		}
 		
 		// Set the default login state of a user to be logged out
@@ -113,10 +124,19 @@ public class UserRecord
 		// getHostAddress() returns the string ip from an InetAddress
 		s.append(address.getAddress().getHostAddress()); s.append(' ');
 		s.append(address.getPort()); s.append(' ');
-		for (String filename : fileNames)
+		for (String filename : filenames)
 		{
 			s.append(filename); s.append(' ');
 		}
 		return s.toString();
+	}
+
+	public UserRecord(String uid, String pass, InetSocketAddress addr)
+	{
+		userID = uid;
+		password = pass;
+		address = addr;
+		filenames = new HashSet();
+		logState = LogState.logout;
 	}
 }

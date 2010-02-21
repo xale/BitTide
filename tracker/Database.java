@@ -11,14 +11,14 @@ import java.io.File;
 
 public class Database
 {
-	private Map<Integer, UserRecord> userDB;
-	private Map<String, Set<Integer>> fileDB;
+	private Map<String, UserRecord> userDB;
+	private Map<String, Set<String>> fileDB;
 	/**
 	  * @return null if the filename is not in the database,
 	  * a set of user ids otherwise.
 	  * @param filename the name of the file to look up.
 	  */
-	public Set<Integer> getUserIDsFromFileName(String filename)
+	public Set<String> getUserIDsFromFileName(String filename)
 	{
 		return fileDB.get(filename);
 	}
@@ -29,23 +29,28 @@ public class Database
 	  */
 	public Set<UserRecord> getUsersFromFileName(String filename)
 	{
-		Set<Integer> userIDs = getUserIDsFromFileName(filename);
+		Set<String> userIDs = getUserIDsFromFileName(filename);
 		if (userIDs == null)
 		{
 			return null;
 		}
 		Set<UserRecord> userRecords = new HashSet<UserRecord>();
-		for (Integer uid : userIDs)
+		for (String uid : userIDs)
 		{
 			userRecords.add(userDB.get(uid));
 		}
 		return userRecords;
 	}
+	public void addUser(UserRecord user)
+	{
+		userDB.add(user.getUserID(), user);
+		fileDB.add(user.getUserID(), new HashSet<String>());
+	}
 	/**
 	  * @return null if the user id doesn't exist, the record otherwise.
 	  * @param uid the integer id of the user.
 	  */
-	public UserRecord getUserRecordFromID(int uid)
+	public UserRecord getUserRecordFromID(String uid)
 	{
 		return userDB.get(uid);
 	}
@@ -58,15 +63,15 @@ public class Database
 
 		int userID;
 		String filename;
-		Set<Integer> userIDs;
+		Set<String> userIDs;
 		UserRecord userRecord;
 		Scanner singleFileScanner;
 
 		Scanner userDBScanner = new Scanner(new File(userDBPath));
 		userDBScanner.useDelimiter("\n");
 
-		userDB = new Hashtable<Integer,UserRecord>();
-		fileDB = new Hashtable<String, Set<Integer>>();
+		userDB = new Hashtable<String, UserRecord>();
+		fileDB = new Hashtable<String, Set<String>>();
 
 		while (userDBScanner.hasNext())
 		{
@@ -80,7 +85,7 @@ public class Database
 		{
 			singleFileScanner = new Scanner(fileDBScanner.next());
 			filename = singleFileScanner.next();
-			userIDs = new HashSet<Integer>();
+			userIDs = new HashSet<String>();
 			while (singleFileScanner.hasNextInt())
 			{
 				userID = singleFileScanner.nextInt();
