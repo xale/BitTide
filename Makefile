@@ -11,7 +11,7 @@ clean:
 	rm -rf message/*.class peer/*.class tracker/*.class
 
 # Dependencies
-peer/Peer.class: peer/*.java
+peer/Peer.class: peer/Peer.java
 	javac $^
 	
 tracker/Tracker.class: tracker/*.java

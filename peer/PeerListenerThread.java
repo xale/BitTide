@@ -11,11 +11,11 @@ public class PeerListenerThread extends Thread
 	
 	private static final int SOCKET_ACCEPT_TIMEOUT = 1000; // milliseconds
 
-public PeerListenerThread()
+public PeerListenerThread(int listenPort)
 	throws IOException
 {
 	super("PeerListener");
-	listenSocket = new ServerSocket(0); // binds to any open port
+	listenSocket = new ServerSocket(listenPort);
 	listenSocket.setSoTimeout(SOCKET_ACCEPT_TIMEOUT);
 }
 

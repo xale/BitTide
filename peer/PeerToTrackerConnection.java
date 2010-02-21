@@ -6,53 +6,53 @@ import message.*;
 
 public class PeerToTrackerConnection
 {
-	private Socket trackerSocket = null;
-	private DataInputStream readStream = null;
-	private DataOutputStream writeStream = null;
+	private InetSocketAddress address;
 	
 public PeerToTrackerConnection(InetSocketAddress trackerAddress)
-	throws UnknownHostException, IOException
 {
-	// Connect a socket to the specified address
-	trackerSocket = new Socket(trackerAddress.getAddress(), trackerAddress.getPort());
-	
-	// Open streams on the socket
-	writeStream = new DataOutputStream(trackerSocket.getOutputStream());
-	readStream = new DataInputStream(trackerSocket.getInputStream());
+	address = trackerAddress;
 }
 
-public void sendMessage(Message message)
-	throws IOException
+public Message sendMessage(Message message)
+	throws EOFException, ErrorMessageException, IOException
 {
-	// FIXME: WRITEME
-}
-
-public Message nextMessage()
-	throws EOFException, IOException, ErrorMessageException
-{
-	// Read the next message from the input stream
-	Message message = Message.nextMessageFromStream(readStream);
+	Socket trackerSocket = null;
+	MessageInputStream readStream = null;
+	MessageOutputStream writeStream = null;
 	
-	// If the message is an error, throw an exception
-	if (message.getMessageCode() == MessageCode.ErrorMessageCode)
+	try
 	{
-		ErrorMessage errorMessage = (ErrorMessage)message;
-		throw new ErrorMessageException(errorMessage.getErrorDescription());
+		// Connect a socket to the specified address
+		trackerSocket = new Socket(address.getAddress(), address.getPort());
+		
+		// Open streams on the socket
+		writeStream = new MessageOutputStream(trackerSocket.getOutputStream());
+		readStream = new MessageInputStream(trackerSocket.getInputStream());
+		
+		// Send the outgoing message
+		writeStream.writeMessage(message);
+		
+		// Read the tracker's reply from the input stream
+		Message replyMessage = readStream.readMessage();
+		
+		// If the message is an error, throw an exception
+		if (replyMessage.getMessageCode() == MessageCode.ErrorMessageCode)
+			throw new ErrorMessageException((ErrorMessage)replyMessage);
+		
+		// Otherwise, return the reply message
+		return replyMessage;
 	}
-	
-	return message;
+	finally
+	{
+		// Close sockets before exiting
+		if ((trackerSocket != null) && !trackerSocket.isClosed())
+			trackerSocket.close();
+	}
 }
 
-public void close()
-	throws IOException
+public InetSocketAddress getAddress()
 {
-	// Close the socket
-	trackerSocket.close();
-}
-
-public boolean isClosed()
-{
-	return trackerSocket.isClosed();
+	return address;
 }
 
 }

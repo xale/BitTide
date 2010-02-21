@@ -22,7 +22,7 @@ MessageCode(byte c)
 	code = c;
 }
 
-public byte code()
+public byte getCode()
 {
 	return code;
 }

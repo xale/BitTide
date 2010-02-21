@@ -1,7 +1,14 @@
 package message;
 
+import java.io.*;
+import java.nio.*;
+
 public class LoginMessage extends Message
 {
+	private static final int PORT_FIELD_WIDTH =		2;
+	private static final int PASSWORD_FIELD_WIDTH =	4;
+	private static final int MAX_PASSWORD_LENGTH =	PASSWORD_FIELD_WIDTH;
+	
 	private int listenPort;
 	private String username;
 	private String password;
@@ -9,19 +16,40 @@ public class LoginMessage extends Message
 public LoginMessage(int peerListenPort, String peerName, String peerPass)
 	throws IllegalArgumentException
 {
-	// Check the length of the password
-	// We are naively assuming that each character is one byte; we can't handle unicode here
-	if (password.length() > 4)
-		throw new IllegalArgumentException("maximum password length is 4 characters");
+	// Check the length of the password (assuming one-byte characters; no unicode support)
+	if (peerPass.length() > MAX_PASSWORD_LENGTH)
+	{
+		throw new IllegalArgumentException("password must be four bytes or less in length");
+	}
 	
 	listenPort = peerListenPort;
-	username = username;
-	password = password;
+	username = peerName;
+	password = peerPass;
 }
 
-public LoginMessage(byte[] messagePayload)
+public LoginMessage(ByteBuffer contents)
 {
-	// FIXME: WRITEME
+	// Read the peer's listen port
+	listenPort = (contents.getShort() & 0x0000FFFF);
+	
+	// Read the peer's username
+	byte[] usernameBuffer = new byte[(contents.array().length - (PORT_FIELD_WIDTH + PASSWORD_FIELD_WIDTH))];
+	contents.get(usernameBuffer);
+	
+	// Read the password
+	byte[] passwordBuffer = new byte[PASSWORD_FIELD_WIDTH];
+	contents.get(passwordBuffer);
+	
+	// Convert username and password to strings
+	try
+	{
+		username = new String(usernameBuffer, "ASCII");
+		password = new String(passwordBuffer, "ASCII");
+	}
+	catch (UnsupportedEncodingException UEE)
+	{
+		System.err.println("warning: unsupported encoding exception caught in LoginMessage(ByteBuffer)");
+	}
 }
 
 public int getListenPort()
@@ -44,10 +72,37 @@ public MessageCode getMessageCode()
 	return MessageCode.LoginMessageCode;
 }
 
-public byte[] getRawMessage()
+public int getRawMessageLength()
 {
-	// FIXME: WRITEME
-	return null;
+	return (Message.HEADER_LENGTH + PORT_FIELD_WIDTH + username.length() + PASSWORD_FIELD_WIDTH);
+}
+
+public ByteBuffer getRawMessage()
+{
+	// Create a buffer
+	ByteBuffer rawMessage = ByteBuffer.allocate(this.getRawMessageLength());
+	
+	// Write the message header
+	rawMessage.put(this.getMessageCode().getCode());
+	rawMessage.putLong((long)this.getRawMessageLength());
+	
+	// Write the listen port
+	rawMessage.putShort((short)this.getListenPort());
+	
+	// Write the username and password
+	try
+	{
+		rawMessage.put(username.getBytes("ASCII"));
+		rawMessage.put(password.getBytes("ASCII"));
+	}
+	catch (UnsupportedEncodingException UEE)
+	{
+		System.err.println("warning: unsupported encoding exception caught in LoginMessage.getRawMessage()");
+		
+		return null;
+	}
+	
+	return rawMessage;
 }
 
 }
