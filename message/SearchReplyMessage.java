@@ -25,7 +25,7 @@ public SearchReplyMessage(long sizeOfFile, SearchReplyPeerEntry[] peers)
 public SearchReplyMessage(ByteBuffer contents)
 {
 	// Retrieve the size of the file
-	fileSize = ByteBufferUtils.getUnsignedIntFrom();
+	fileSize = ByteBufferUtils.getUnsignedIntFrom(contents);
 	
 	// Determine the number of peers returned in the search result
 	int numPeers = ((contents.array().length - FILESIZE_FIELD_WIDTH) / PEER_ENTRY_WIDTH);
