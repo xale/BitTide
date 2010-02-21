@@ -16,7 +16,7 @@ public ErrorMessage(String description)
 
 public ErrorMessage()
 {
-	this("");
+	errorDescription = null;
 }
 
 public ErrorMessage(ByteBuffer contents)
