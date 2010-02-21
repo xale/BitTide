@@ -103,8 +103,8 @@ public ByteBuffer getRawMessage()
 	}
 	
 	// Write the block indexes
-	rawMessage.putShort((short)this.getBeginBlockIndex());
-	rawMessage.putShort((short)this.getEndBlockIndex());
+	rawMessage.putShort((short)beginBlockIndex);
+	rawMessage.putShort((short)endBlockIndex);
 	
 	return rawMessage;
 }

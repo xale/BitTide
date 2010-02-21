@@ -83,10 +83,10 @@ public ByteBuffer getRawMessage()
 	rawMessage.putInt(this.getRawMessageLength());
 	
 	// Write the file size
-	rawMessage.putInt((int)this.getFileSize());
+	rawMessage.putInt((int)fileSize);
 	
 	// Write the bitmap
-	rawMessage.put(this.getFileBitmap().getRawBitmap());
+	rawMessage.put(fileBitmap.getRawBitmap());
 	
 	// Write the filename
 	try

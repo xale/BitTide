@@ -85,7 +85,7 @@ public ByteBuffer getRawMessage()
 	rawMessage.putInt(this.getRawMessageLength());
 	
 	// Write the listen port
-	rawMessage.putShort((short)this.getListenPort());
+	rawMessage.putShort((short)listenPort);
 	
 	// Write the username and password
 	try

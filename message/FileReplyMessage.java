@@ -48,10 +48,10 @@ public ByteBuffer getRawMessage()
 	rawMessage.putInt(this.getRawMessageLength());
 	
 	// Write the block index
-	rawMessage.putShort((short)this.getBlockIndex());
+	rawMessage.putShort((short)blockIndex);
 	
 	// Write the block contents
-	rawMessage.put(this.getBlockContents());
+	rawMessage.put(blockContents);
 	
 	return rawMessage;
 }
