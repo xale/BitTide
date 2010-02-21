@@ -28,6 +28,14 @@ public FileBitmap(byte[] bitmap)
 	}
 }
 
+/**
+* Creates a new FileBitmap with an empty byte array.
+*/
+public FileBitmap()
+{
+	super(FILE_BITMAP_SIZE);
+}
+
 public ByteBuffer getRawBitmap()
 {
 	// Create a byte array
