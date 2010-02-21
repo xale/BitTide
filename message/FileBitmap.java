@@ -34,12 +34,6 @@ public FileBitmap(byte[] bitmap)
 public FileBitmap()
 {
 	super(FILE_BITMAP_SIZE);
-	
-	// Convert the byte array into a BitSet
-	for (int i = 0; i < FILE_BITMAP_SIZE; i++)
-	{
-		this.set(i, 0);
-	}
 }
 
 public ByteBuffer getRawBitmap()
