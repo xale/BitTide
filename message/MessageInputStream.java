@@ -92,6 +92,7 @@ public Message readMessage()
 }
 
 public long readUnsignedInt()
+	throws IOException
 {
 	return (super.readInt() & 0xFFFFFFFFL);
 }
