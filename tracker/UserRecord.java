@@ -2,9 +2,12 @@ package tracker;
 
 import java.net.InetSocketAddress;
 import java.util.Set;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Hashtable;
 import java.util.Scanner;
 import java.lang.IllegalArgumentException;
-import java.util.HashSet;
+import message.FileBitmap;
 
 public class UserRecord
 {
@@ -68,6 +71,16 @@ public class UserRecord
 	public void addFilename(String filename)
 	{
 		filenames.add(filename);
+		bitmaps.put(filename, new FileBitmap());
+	}
+	/**
+	  * @param filename The filename to add to the internal set.
+	  * @param bitmap The bitmap to give it.
+	  */
+	public void addFilenameWithBitmap(String filename, FileBitmap bitmap)
+	{
+		filenames.add(filename);
+		bitmaps.put(filename, bitmap);
 	}
 	/**
 	  * @param filename The filename to remove from the internal set.
@@ -75,6 +88,7 @@ public class UserRecord
 	public void removeFilename(String filename)
 	{
 		filenames.remove(filename);
+		bitmaps.remove(filename);
 	}
 	/**
 	  * @param dbString A single line of the file database.
