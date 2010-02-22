@@ -1,5 +1,6 @@
 package message;
 
+import java.nio.*;
 import java.net.*;
 import java.util.*;
 
@@ -32,6 +33,23 @@ public InetSocketAddress getAddress()
 public FileBitmap getFileBitmap()
 {
 	return fileBitmap;
+}
+
+public ByteBuffer getRawEntry()
+{
+	// Create a ByteBuffer
+	ByteBuffer rawEntry = ByteBuffer.allocate(Message.PEER_ENTRY_WIDTH);
+	
+	// Write the IP addres
+	rawEntry.put(getAddress().getAddress().getAddress()); // lol
+	
+	// Write the port number
+	rawEntry.putShort((short)address.getPort());
+	
+	// Write the bitmap
+	rawEntry.put(fileBitmap.getRawBitmap());
+	
+	return rawEntry;
 }
 
 }
