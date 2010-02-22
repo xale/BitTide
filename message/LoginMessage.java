@@ -5,7 +5,7 @@ import java.nio.*;
 
 public class LoginMessage extends Message
 {
-	private static final int MAX_PASSWORD_LENGTH =	Message.PASSWORD_FIELD_WIDTH;
+	private static final int PASSWORD_LENGTH =	Message.PASSWORD_FIELD_WIDTH;
 	
 	private int listenPort;
 	private String username;
@@ -15,9 +15,9 @@ public LoginMessage(int peerListenPort, String peerName, String peerPass)
 	throws IllegalArgumentException
 {
 	// Check the length of the password (assuming one-byte characters; no unicode support)
-	if (peerPass.length() > MAX_PASSWORD_LENGTH)
+	if (peerPass.length() != PASSWORD_LENGTH)
 	{
-		throw new IllegalArgumentException("password must be four bytes or less in length");
+		throw new IllegalArgumentException("password must be four bytes in length");
 	}
 	
 	listenPort = peerListenPort;
@@ -31,7 +31,8 @@ public LoginMessage(ByteBuffer contents)
 	listenPort = ByteBufferUtils.getUnsignedShortFrom(contents);
 	
 	// Read the peer's username
-	byte[] usernameBuffer = new byte[(contents.array().length - (Message.PORT_FIELD_WIDTH + Message.PASSWORD_FIELD_WIDTH))];
+	int nameLength = contents.array().length - (Message.PORT_FIELD_WIDTH + Message.PASSWORD_FIELD_WIDTH);
+	byte[] usernameBuffer = new byte[nameLength];
 	contents.get(usernameBuffer);
 	
 	// Read the password
