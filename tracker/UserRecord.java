@@ -84,6 +84,10 @@ public class UserRecord
 	{
 		bitmaps.put(filename, bitmap);
 	}
+	public void getFileBitmap(String filename)
+	{
+		bitmaps.get(filename);
+	}
 	/**
 	  * Does not check that file exists
 	  * @param size The size to give it.
