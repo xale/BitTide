@@ -18,8 +18,6 @@ public class Peer
 	
 	private static int listenPort = 0;
 	private static PeerListenerThread peerListener = null;
-	
-	private static Scanner keyboard = null;
 
 public static void main(String[] args)
 {
@@ -78,8 +76,8 @@ public static void main(String[] args)
 		int port = peerListener.getListenSocket().getLocalPort();
 		Message message = new LoginMessage(port, username, password);
 		
-		// Attempt to send the message, and get the tracker's reply
-		Message loginReply = trackerConnection.sendMessage(message);
+		// Attempt to send the message (will throw an ErrorMessageException if the reply from the tracker is an error)
+		trackerConnection.sendMessage(message);
 		
 		System.out.println("done");
 	}
@@ -105,49 +103,128 @@ public static void main(String[] args)
 	// Send the list of files we're serving to the server
 	// FIXME: WRITEME
 	
-	// Set up keyboard input scanner
-	keyboard = new Scanner(System.in);
-	
-	// Enter interactive loop
-	String command;
-	PeerClientAction action;
-	do
+	// Wrap all user interaction in a try block for network errors
+	try
 	{
-		// Print the command prompt
-		System.out.print("peer> ");
-	
-		// Read the user's next command
-		command = keyboard.next();
-		action = PeerClientAction.getActionByCommand(command);
+		// Set up keyboard input scanner
+		Scanner keyboard = new Scanner(System.in);
 		
-		// Determine what to do
-		switch (action)
+		// Enter interactive loop
+		String[] inputLine;
+		PeerClientAction action;
+		Message reply;
+		do
 		{
-			case findFile:
-				// FIXME: WRITEME: find file
-				break;
-			
-			case printDownloads:
-				// FIXME: WRITEME: print current downloads
-				break;
-			
-			case stopDownloads:
-				// FIXME: WRITEME: stop current downloads
-				break;
-			
-			case exitProgram:
-				// Does nothing; do/while loop will terminate
-				break;
-			
-			default:
-				// Print a warning
-				System.out.println("unknown command: " + command);
-				System.out.println("valid commands:");
-				PeerClientAction.printCommands();
-				break;
-		}
+			// Print the command prompt
+			System.out.print("peer> ");
 		
-	} while (action != PeerClientAction.exitProgram);
+			// Read the user's next command
+			try
+			{
+				inputLine = keyboard.nextLine().split(" ");
+				action = PeerClientAction.getActionByCommand(inputLine[0]);
+			}
+			catch (IndexOutOfBoundsException noCommand)
+			{
+				action = PeerClientAction.invalidAction;
+				continue;
+			}
+			
+			// Determine what to do
+			switch (action)
+			{
+				case findFile:
+				{
+					// Send a search request with the specified file name
+					try
+					{
+						String filename = inputLine[1];
+						
+						// Send the request
+						reply = trackerConnection.sendMessage(new SearchRequestMessage(filename));
+						
+						// Check for the right message type in the reply
+						if (reply.getMessageCode() != MessageCode.SearchReplyMessageCode)
+						{
+							System.err.println("warning: reply to SearchRequest is not a SearchReply");
+							continue;
+						}
+						
+						// Check the results returned
+						SearchReplyMessage searchReply = (SearchReplyMessage)reply;
+						if (searchReply.getPeerResults() == null)
+						{
+							System.out.println("no peer results");
+							continue;
+						}
+						
+						// List search results
+						// FIXME: WRITEME?
+						
+						// Ask if the user would like to download the file
+						System.out.print("would you like to begin downloading? (y/n) ");
+						
+						// Read the user's response
+						String response = keyboard.nextLine();
+						
+						// If the user doesn't want to download, go back to main prompt
+						if (response.charAt(0) != 'y')
+							continue;
+						
+						// Otherwise, download the file
+						// FIXME: WRITEME
+					}
+					catch (IndexOutOfBoundsException noFilename)
+					{
+						noFilename.printStackTrace();
+						System.out.println("usage: find <filename>");
+					}
+					catch (ErrorMessageException EME)
+					{
+						System.err.println("search error: " + EME.getMessage());
+					}
+					
+					break;
+				}
+				case printDownloads:
+				{
+					// FIXME: WRITEME: print current downloads
+					break;
+				}
+				case stopDownloads:
+				{
+					// FIXME: WRITEME: stop current downloads
+					break;
+				}
+				case exitProgram:
+				{
+					// Does nothing; do/while loop will terminate
+					break;
+				}
+				default:
+				{
+					// Print a warning
+					System.out.println("unknown command: " + inputLine[0]);
+					System.out.println("valid commands:");
+					PeerClientAction.printCommands();
+					break;
+				}
+			}
+			
+		} while (action != PeerClientAction.exitProgram);
+	}
+	catch (EOFException EOFE)
+	{
+		System.out.println();
+		System.err.println("error: the tracker closed the connection");
+		logoutAndExit(1);
+	}
+	catch (IOException IOE)
+	{
+		System.out.println();
+		System.err.println("a network error occurred: " + IOE.getMessage());
+		logoutAndExit(1);
+	}
 	
 	// Close everything and exit
 	logoutAndExit(0);
