@@ -18,6 +18,8 @@ public class Peer
 	
 	private static int listenPort = 0;
 	private static PeerListenerThread peerListener = null;
+	
+	private static Scanner keyboard = null;
 
 public static void main(String[] args)
 {
@@ -89,8 +91,49 @@ public static void main(String[] args)
 	// Send the list of files we're serving to the server
 	// FIXME: WRITEME
 	
+	// Set up keyboard input scanner
+	keyboard = new Scanner(System.in);
+	
 	// Enter interactive loop
-	// FIXME: WRITEME
+	String command;
+	PeerClientAction action;
+	do
+	{
+		// Print the command prompt
+		System.out.println("peer> ");
+	
+		// Read the user's next command
+		command = keyboard.next();
+		action = PeerClientAction.getActionByCommand(command);
+		
+		// Determine what to do
+		switch (action)
+		{
+			case findFile:
+				// FIXME: WRITEME: find file
+				break;
+			
+			case printDownloads:
+				// FIXME: WRITEME: print current downloads
+				break;
+			
+			case stopDownloads:
+				// FIXME: WRITEME: stop current downloads
+				break;
+			
+			case exitProgram:
+				// Does nothing; do/while loop will terminate
+				break;
+			
+			default:
+				// Print a warning
+				System.out.println("unknown command: " + command);
+				System.out.println(" valid commands:");
+				PeerClientAction.printCommands();
+				break;
+		}
+		
+	} while (action != PeerClientAction.exitProgram);
 	
 	// Close everything and exit
 	logoutAndExit(0);
