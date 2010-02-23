@@ -9,6 +9,14 @@ public class SearchReplyMessage extends Message
 	private long fileSize;
 	private SearchReplyPeerEntry[] peerResults;
 
+/**
+* Creates a SearchReplyMessage indicating that no results were found.
+*/
+public SearchReplyMessage()
+{
+	this(0, null);
+}
+
 public SearchReplyMessage(long sizeOfFile, SearchReplyPeerEntry[] peers)
 {
 	fileSize = sizeOfFile;
@@ -17,6 +25,14 @@ public SearchReplyMessage(long sizeOfFile, SearchReplyPeerEntry[] peers)
 
 public SearchReplyMessage(ByteBuffer contents)
 {
+	// Check if the reply contains any results
+	if (contents == null)
+	{
+		fileSize = 0;
+		peerResults = null;
+		return;
+	}
+	
 	// Retrieve the size of the file
 	fileSize = ByteBufferUtils.getUnsignedIntFrom(contents);
 	
@@ -93,6 +109,8 @@ public ByteBuffer getRawMessage()
 	// Write the message header
 	rawMessage.put(this.getMessageCode().getCode());
 	rawMessage.putInt(this.getRawMessageLength());
+	
+	// Write the size of the file
 	
 	// Write the peer result entries
 	for (int i = 0; i < peerResults.length; i++)
