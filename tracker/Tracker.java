@@ -61,7 +61,7 @@ class Tracker
 		user.setFileSize(filename, file_size);
 		return new SuccessMessage();
 	}
-	public Message fileBitmap(String filename, FileBitmap fileBitmap)
+	public Message fileBitmap(String username, String filename, FileBitmap fileBitmap)
 	{
 		UserRecord user;
 		user = db.getUserRecordFromID(username);
