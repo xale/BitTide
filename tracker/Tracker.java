@@ -3,6 +3,8 @@ package tracker;
 import message.*;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.Set;
+import java.util.Arrays;
 import java.net.InetSocketAddress;
 
 class Tracker
@@ -83,12 +85,14 @@ class Tracker
 	}
 	private UserRecord[] bestUsers(String filename)
 	{
+		UserRecord[] users;
 		Set<UserRecord> userSet = db.getUsersFromFilename(filename);
 		if (userSet.size() <= 5)
 		{
-			return userSet.toArray();
+			return userSet.toArray(new UserRecord[0]);
 		}
-		UserRecord[] users = userSet.toArray();
-		return sort(users, new UserRecordComparator(filename));
+		users = userSet.toArray(new UserRecord[0]);
+		Arrays.sort(users, new UserRecordComparator(filename));
+		return users;
 	}
 }

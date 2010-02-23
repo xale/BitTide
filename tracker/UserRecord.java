@@ -84,9 +84,9 @@ public class UserRecord
 	{
 		bitmaps.put(filename, bitmap);
 	}
-	public void getFileBitmap(String filename)
+	public final FileBitmap getFileBitmap(String filename)
 	{
-		bitmaps.get(filename);
+		return bitmaps.get(filename);
 	}
 	/**
 	  * Does not check that file exists
