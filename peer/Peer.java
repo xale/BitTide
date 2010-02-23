@@ -9,7 +9,7 @@ public class Peer
 {
 	private static final int MAX_PORT_VALUE = 0x0000FFFF;	// 65535
 	
-	private static PeerToTrackerConnection tracker = null;
+	private static PeerToTrackerConnection trackerConnection = null;
 	
 	private static String username = null;
 	private static String password = null;
@@ -55,17 +55,31 @@ public static void main(String[] args)
 		closeConnectionsAndExit(1);
 	}
 	
+	// Attempt to connect to the tracker
+	try
+	{
+		System.out.print("Connecting to tracker " + trackerConnection.getAddress() + "... ");
+		trackerConnection.open();
+		System.out.print("done");
+	}
+	catch (IOException IOE)
+	{
+		System.out.println();
+		System.err.println("could not connect, a network error occurred: " + IOE.getMessage());
+		closeConnectionsAndExit(1);
+	}
+	
 	// Log in to the tracker
 	try
 	{
-		System.out.print("Logging in to tracker " + tracker.getAddress() + "... ");
+		System.out.print("Logging in... ");
 		
 		// Create a login message with the listener port, and the user's username and password
 		int port = peerListener.getListenSocket().getLocalPort();
 		Message message = new LoginMessage(port, username, password);
 		
 		// Attempt to send the message, and get the tracker's reply
-		Message loginReply = tracker.sendMessage(message);
+		Message loginReply = trackerConnection.sendMessage(message);
 		
 		System.out.println("done");
 	}
@@ -151,7 +165,7 @@ public static void parseArguments(String[] args)
 		// Attempt to parse and look up the tracker address
 		InetAddress address = InetAddress.getByName(args[0]);
 		int port = Integer.parseInt(args[1]);
-		tracker = new PeerToTrackerConnection(new InetSocketAddress(address, port));
+		trackerConnection = new PeerToTrackerConnection(new InetSocketAddress(address, port));
 	}
 	catch (UnknownHostException UHE)
 	{
@@ -197,6 +211,7 @@ public static void parseArguments(String[] args)
 
 public static void logoutAndExit(int exitCode)
 {
+	// Send a logout message
 	// FIXME: WRITEME
 	
 	closeConnectionsAndExit(exitCode);
@@ -204,6 +219,22 @@ public static void logoutAndExit(int exitCode)
 
 public static void closeConnectionsAndExit(int exitCode)
 {
+	// Close the tracker connection
+	if ((trackerConnection != null) && !trackerConnection.isClosed())
+	{
+		try
+		{
+			System.out.print("Closing connection to tracker... ");
+			trackerConnection.close();
+			System.out.println("done");
+		}
+		catch (Exception E)
+		{
+			System.out.println();
+			E.printStackTrace();
+		}
+	}
+	
 	// Shut down the peer listener
 	if ((peerListener != null) && peerListener.isAlive())
 	{
