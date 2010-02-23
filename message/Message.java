@@ -32,6 +32,9 @@ public abstract class Message
 	// Maximum data payload for a MSG_FILE_REP
 	public static final int MAX_DATA_SIZE = 		(16 * 1024);
 	
+	// Width of an entry in a MSG_SEARCH_REP
+	public static final int PEER_ENTRY_WIDTH = IP_FIELD_WIDTH + PORT_FIELD_WIDTH + BITMAP_FIELD_WIDTH;
+	
 	// Maximum message length; only MSG_FILE_REP can be this long
 	public static final long MAX_MESSAGE_LENGTH =	HEADER_LENGTH + BLOCKINDEX_FIELD_WIDTH + MAX_DATA_SIZE;
 

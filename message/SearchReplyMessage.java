@@ -6,8 +6,6 @@ import java.util.*;
 
 public class SearchReplyMessage extends Message
 {
-	private static final int PEER_ENTRY_WIDTH = Message.IP_FIELD_WIDTH + Message.PORT_FIELD_WIDTH + Message.BITMAP_FIELD_WIDTH;
-	
 	private long fileSize;
 	private SearchReplyPeerEntry[] peerResults;
 
@@ -23,7 +21,7 @@ public SearchReplyMessage(ByteBuffer contents)
 	fileSize = ByteBufferUtils.getUnsignedIntFrom(contents);
 	
 	// Determine the number of peers returned in the search result
-	int numPeers = ((contents.array().length - Message.FILESIZE_FIELD_WIDTH) / PEER_ENTRY_WIDTH);
+	int numPeers = ((contents.array().length - Message.FILESIZE_FIELD_WIDTH) / Message.PEER_ENTRY_WIDTH);
 	
 	// Parse the entries
 	peerResults = new SearchReplyPeerEntry[numPeers];
@@ -97,9 +95,10 @@ public ByteBuffer getRawMessage()
 	rawMessage.putInt(this.getRawMessageLength());
 	
 	// Write the peer result entries
-	// FIXME: WRITEME
+	for (int i = 0; i < peerResults.length; i++)
+		rawMessage.put(peerResults[i].getRawEntry());
 	
-	return null;
+	return rawMessage;
 }
 
 }

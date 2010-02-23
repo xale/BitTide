@@ -1,13 +1,38 @@
 package message;
 
+import java.io.*;
 import java.nio.*;
 
 public class LogoutCompleteMessage extends Message
 {
+	private String username;
+
+public LogoutCompleteMessage(String peerName)
+{
+	username = peerName;
+}
 
 public LogoutCompleteMessage(ByteBuffer contents)
 {
-	// FIXME: WRITEME
+	// Read the username
+	int nameLength = contents.array().length - (Message.PORT_FIELD_WIDTH + Message.PASSWORD_FIELD_WIDTH);
+	byte[] rawName = new byte[nameLength];
+	contents.get(rawName);
+	
+	// Convert to a string
+	try
+	{
+		username = new String(rawName, "ASCII");
+	}
+	catch (UnsupportedEncodingException UEE)
+	{
+		System.err.println("warning: unsupported encoding exception caught in LogoutCompleteMessage(ByteBuffer)");
+	}
+}
+
+public String getUsername()
+{
+	return username;
 }
 
 public MessageCode getMessageCode()
@@ -17,8 +42,7 @@ public MessageCode getMessageCode()
 
 public int getRawMessageLength()
 {
-	// FIXME: WRITEME
-	return 0;
+	return Message.HEADER_LENGTH + username.length();
 }
 
 public ByteBuffer getRawMessage()
@@ -30,9 +54,19 @@ public ByteBuffer getRawMessage()
 	rawMessage.put(this.getMessageCode().getCode());
 	rawMessage.putInt(this.getRawMessageLength());
 	
-	// FIXME: WRITEME
+	// Write the username
+	try
+	{
+		rawMessage.put(username.getBytes("ASCII"));
+	}
+	catch (UnsupportedEncodingException UEE)
+	{
+		System.err.println("warning: unsupported encoding exception caught in LogoutCompleteMessage.getRawMessage()");
+		
+		return null;
+	}
 	
-	return null;
+	return rawMessage;
 }
 
 }
