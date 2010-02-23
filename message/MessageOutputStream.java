@@ -15,11 +15,10 @@ public void writeMessage(Message message)
 	throws IOException
 {
 	// Get the raw representation of the message
-	byte[] rawMessage = new byte[message.getRawMessageLength()];
-	message.getRawMessage().get(rawMessage);
+	ByteBuffer rawMessage = message.getRawMessage();
 	
 	// Write the message to the output stream
-	super.write(rawMessage);
+	super.write(rawMessage.array());
 }
 
 }
