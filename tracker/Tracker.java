@@ -76,22 +76,43 @@ class Tracker
 		user.setFileBitmap(filename, fileBitmap);
 		return new SuccessMessage();
 	}
-	public Message searchReq(String filename)
+	public Message searchReq(String username, String filename)
 	{
-		//TODO: logic
 		SearchReplyPeerEntry[] peers;
-		long sizeOfFile;
+		UserRecord[] users = bestUsers(username, filename);
+		if (users == null || users.length == 0)
+		{
+			return new SearchReplyMessage();
+		}
+		long sizeOfFile = users[0].getFileSize(filename);
+		int numPeers = 5;
+		if (users.length < numPeers)
+		{
+			numPeers = users.length;
+		}
+		peers = new SearchReplyPeerEntry[numPeers];
+		for (int i = 0; i < numPeers; ++i)
+		{
+			peers[i] = new SearchReplyPeerEntry(users[i].getAddress(), users[i].getFileBitmap(filename));
+		}
 		return new SearchReplyMessage(sizeOfFile, peers);
 	}
-	private UserRecord[] bestUsers(String filename)
+	private UserRecord[] bestUsers(String username, String filename)
 	{
-		UserRecord[] users;
 		Set<UserRecord> userSet = db.getUsersFromFilename(filename);
+		for (UserRecord user : userSet)
+		{
+			if (user.getUserID().equals(username))
+			{
+				userSet.remove(user);
+				break;
+			}
+		}
 		if (userSet.size() <= 5)
 		{
 			return userSet.toArray(new UserRecord[0]);
 		}
-		users = userSet.toArray(new UserRecord[0]);
+		UserRecord[] users = userSet.toArray(new UserRecord[0]);
 		Arrays.sort(users, new UserRecordComparator(filename));
 		return users;
 	}

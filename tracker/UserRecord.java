@@ -26,6 +26,10 @@ public class UserRecord
 	{
 		return userID;
 	}
+	public boolean equals(UserRecord o)
+	{
+		return o.getUserID().equals(userID);
+	}
 	/**
 	  * @return a finalized password.
 	  */
@@ -95,6 +99,10 @@ public class UserRecord
 	public void setFileSize(String filename, long size)
 	{
 		sizemaps.put(filename, size);
+	}
+	public long getFileSize(String filename)
+	{
+		return sizemaps.get(filename);
 	}
 	/**
 	  * @param filename The filename to remove from the internal set.
