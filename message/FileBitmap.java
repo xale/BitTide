@@ -24,7 +24,7 @@ public FileBitmap(byte[] bitmap)
 	// Convert the byte array into a BitSet
 	for (int i = 0; i < FILE_BITMAP_SIZE; i++)
 	{
-		this.set(i, ((bitmap[(Byte.SIZE * i)] & (1 << ((Byte.SIZE - 1) - (i % Byte.SIZE)))) != 0));
+		this.set(i, ((bitmap[(i / Byte.SIZE)] & (1 << ((Byte.SIZE - 1) - (i % Byte.SIZE)))) != 0));
 	}
 }
 
