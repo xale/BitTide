@@ -17,7 +17,7 @@ public enum MessageCode
 	
 	private final byte code;
 
-MessageCode(byte c)
+private MessageCode(byte c)
 {
 	code = c;
 }
