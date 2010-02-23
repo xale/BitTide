@@ -38,6 +38,7 @@ public static PeerClientAction getActionByCommand(String command)
 		case 's':
 			return stopDownloads;
 		case 'e':
+		case 'q':
 			return exitProgram;
 		default:
 			break;
@@ -52,7 +53,7 @@ public static void printCommands()
 	for (PeerClientAction action : PeerClientAction.values())
 	{
 		if (action != invalidAction)
-			System.out.println(action);
+			System.out.println("\t" + action);
 	}
 }
 
