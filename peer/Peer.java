@@ -60,7 +60,7 @@ public static void main(String[] args)
 	{
 		System.out.print("Connecting to tracker " + trackerConnection.getAddress() + "... ");
 		trackerConnection.open();
-		System.out.print("done");
+		System.out.println("done");
 	}
 	catch (IOException IOE)
 	{
@@ -72,7 +72,7 @@ public static void main(String[] args)
 	// Log in to the tracker
 	try
 	{
-		System.out.print("Logging in... ");
+		System.out.print("Logging in to tracker... ");
 		
 		// Create a login message with the listener port, and the user's username and password
 		int port = peerListener.getListenSocket().getLocalPort();
@@ -114,7 +114,7 @@ public static void main(String[] args)
 	do
 	{
 		// Print the command prompt
-		System.out.println("peer> ");
+		System.out.print("peer> ");
 	
 		// Read the user's next command
 		command = keyboard.next();
@@ -142,7 +142,7 @@ public static void main(String[] args)
 			default:
 				// Print a warning
 				System.out.println("unknown command: " + command);
-				System.out.println(" valid commands:");
+				System.out.println("valid commands:");
 				PeerClientAction.printCommands();
 				break;
 		}
@@ -212,7 +212,17 @@ public static void parseArguments(String[] args)
 public static void logoutAndExit(int exitCode)
 {
 	// Send a logout message
-	// FIXME: WRITEME
+	try
+	{
+		System.out.print("Logging out from tracker... ");
+		trackerConnection.sendMessage(new LogoutRequestMessage(username));
+		System.out.println("done");
+	}
+	catch (Exception E)
+	{
+		System.out.println();
+		System.err.println("an exception occurred while logging out: " + E.getMessage());
+	}
 	
 	closeConnectionsAndExit(exitCode);
 }
