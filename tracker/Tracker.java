@@ -1,6 +1,8 @@
 package tracker;
 
 import message.*;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.net.InetSocketAddress;
 
 class Tracker
@@ -78,5 +80,15 @@ class Tracker
 		SearchReplyPeerEntry[] peers;
 		long sizeOfFile;
 		return new SearchReplyMessage(sizeOfFile, peers);
+	}
+	private UserRecord[] bestUsers(String filename)
+	{
+		Set<UserRecord> userSet = db.getUsersFromFilename(filename);
+		if (userSet.size() <= 5)
+		{
+			return userSet.toArray();
+		}
+		UserRecord[] users = userSet.toArray();
+		return sort(users, new UserRecordComparator(filename));
 	}
 }
