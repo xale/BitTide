@@ -31,7 +31,7 @@ public void run()
 		try
 		{
 			// For each incoming request, create and enqueue a job on the thread pool
-			threadPool.execute(new PeerToPeerConnectionHandler(this.getListenSocket().accept()));
+			threadPool.execute(new IncomingPeerConnection(this.getListenSocket().accept()));
 		}
 		catch (SocketTimeoutException STE)
 		{

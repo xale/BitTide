@@ -32,7 +32,7 @@ public void open()
 	writeStream = new MessageOutputStream(trackerSocket.getOutputStream());
 }
 
-public Message sendMessage(Message message)
+public synchronized Message sendMessage(Message message)
 	throws EOFException, ErrorMessageException, IOException
 {
 	// Send the outgoing message
@@ -49,12 +49,12 @@ public Message sendMessage(Message message)
 	return replyMessage;
 }
 
-public boolean isClosed()
+public synchronized boolean isClosed()
 {
 	return (trackerSocket == null) || (trackerSocket.isClosed());
 }
 
-public void close()
+public synchronized void close()
 	throws IOException
 {
 	// Close the socket (automatically closes the streams)

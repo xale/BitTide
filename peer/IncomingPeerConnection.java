@@ -4,11 +4,11 @@ import java.net.*;
 import java.util.*;
 import java.io.*;
 
-public class PeerToPeerConnectionHandler implements Runnable
+public class IncomingPeerConnection implements Runnable
 {
 	private Socket peerSocket = null;
 	
-public PeerToPeerConnectionHandler(Socket connectionSocket)
+public IncomingPeerConnection(Socket connectionSocket)
 {
 	peerSocket = connectionSocket;
 }
