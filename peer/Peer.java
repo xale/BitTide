@@ -136,9 +136,10 @@ public static void main(String[] args)
 				case findFile:
 				{
 					// Send a search request with the specified file name
+					String filename = null;
 					try
 					{
-						String filename = inputLine[1];
+						filename = inputLine[1];
 					}
 					catch (IndexOutOfBoundsException noFilename)
 					{
