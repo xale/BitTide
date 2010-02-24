@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Scanner;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.File;
 import java.io.PrintStream;
 
@@ -68,12 +69,24 @@ public class Database
 	}
 	public void writeSelf()
 	{
+		File tmpfile = null;
+		try
+		{
+			tmpfile = File.createTempFile("wtf", null);
+		}
+		catch (IOException e)
+		{
+			System.err.println("This should not have happened.");
+			System.err.println(e.getMessage());
+			System.exit(1);
+		}
+		File outfile = new File(userDBPath);
 		PrintStream out = null;
 		try
 		{
-			out = new PrintStream(userDBPath);
+			out = new PrintStream(tmpfile);
 		}
-		catch (java.io.FileNotFoundException e)
+		catch (FileNotFoundException e)
 		{
 			System.err.println("This should not have happened.");
 			System.err.println(e.getMessage());
@@ -81,6 +94,9 @@ public class Database
 		}
 		out.print(userString());
 		out.close();
+
+		outfile.delete();
+		tmpfile.renameTo(outfile);
 	}
 	public Database(String userDBPath)
 		throws FileNotFoundException

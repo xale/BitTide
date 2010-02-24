@@ -48,8 +48,29 @@ class Tracker
 
 		user.login();
 
+		writeToDisk();
 		return new SuccessMessage();
 		// return an error message if it fails
+	}
+	public Message logoutComplete(String username)
+	{
+		UserRecord user;
+		user = db.getUserRecordFromID(username);
+		
+		if (user == null)
+		{
+			return new ErrorMessage("Unknown user");
+		}
+
+		if (user.getLogState() != LogState.inactive)
+		{
+			return new ErrorMessage("Not inactive");
+		}
+
+		user.logout();
+
+		writeToDisk();
+		return new SuccessMessage();
 	}
 	public Message logoutReq(String username)
 	{
@@ -68,6 +89,7 @@ class Tracker
 
 		user.loginactive();
 
+		writeToDisk();
 		return new SuccessMessage();
 	}
 	public Message fileInfo(String username, String filename, long file_size, FileBitmap fileBitmap)
@@ -80,6 +102,8 @@ class Tracker
 		user.addFilename(filename);
 		user.setFileBitmap(filename, fileBitmap);
 		user.setFileSize(filename, file_size);
+
+		writeToDisk();
 		return new SuccessMessage();
 	}
 	public Message fileBitmap(String username, String filename, FileBitmap fileBitmap)
@@ -91,6 +115,8 @@ class Tracker
 		assert (user.hasFilename(filename)); // same comment as above
 
 		user.setFileBitmap(filename, fileBitmap);
+
+		writeToDisk();
 		return new SuccessMessage();
 	}
 	public Message searchReq(String username, String filename)
@@ -112,6 +138,7 @@ class Tracker
 		{
 			peers[i] = new SearchReplyPeerEntry(users[i].getAddress(), users[i].getFileBitmap(filename));
 		}
+
 		return new SearchReplyMessage(sizeOfFile, peers);
 	}
 	private UserRecord[] bestUsers(String username, String filename)

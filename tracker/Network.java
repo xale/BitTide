@@ -9,12 +9,11 @@ import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 
-
 class Network
 {
 	public static void main(String[] args) throws IOException
 	{
-		Tracker tracker;
+		final Tracker tracker;
 		ServerSocket serverSocket = null;
 
 		int port = Integer.parseInt(args[0]);
@@ -35,12 +34,12 @@ class Network
 		ExecutorService threadPool = Executors.newCachedThreadPool();
 		boolean flag = true;
 		Socket socket;
+
 		while (flag)
 		{
 			socket = serverSocket.accept();
 			threadPool.execute(new Client(socket, tracker));
 		}
-
 	}
 	private static class Client implements Runnable
 	{
