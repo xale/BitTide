@@ -14,7 +14,8 @@ public class Peer
 	private static String username = null;
 	private static String password = null;
 	
-	private static URI downloadsDirectory = null;
+	private static PeerDownloadManager downloadManager = null;
+	private static File downloadsDirectory = null;
 	
 	private static int listenPort = 0;
 	private static PeerListenerThread peerListener = null;
@@ -28,7 +29,7 @@ public static void main(String[] args)
 	}
 	catch (IllegalArgumentException badArgs)
 	{
-		System.err.println("error parsing command-line arguments: " + badArgs.getMessage());
+		System.err.println("error: " + badArgs.getMessage());
 		usage();
 		System.exit(1);
 	}
@@ -100,8 +101,11 @@ public static void main(String[] args)
 		closeConnectionsAndExit(1);
 	}
 	
-	// Send the list of files we're serving to the server
+	// Send the list of files we're seeding to the server
 	// FIXME: WRITEME
+	
+	// Create a download manager
+	downloadManager = new PeerDownloadManager(trackerConnection, downloadsDirectory);
 	
 	// Wrap all user interaction in a try block for network errors
 	try
@@ -185,19 +189,19 @@ public static void main(String[] args)
 					// Read the user's response
 					String response = keyboard.nextLine();
 					
+					// If the user doesn't want to download, go back to main prompt
 					try
 					{
-						// If the user doesn't want to download, go back to main prompt
 						if (response.charAt(0) != 'y')
 							continue;
 					}
 					catch (IndexOutOfBoundsException noResponse)
 					{
-						
+						continue;
 					}
 					
 					// Otherwise, download the file
-					// FIXME: WRITEME
+					downloadManager.startDownload(filename, searchReply);
 					
 					break;
 				}
@@ -290,14 +294,21 @@ public static void parseArguments(String[] args)
 	username = args[3];
 	password = args[4];
 	
-	try
+	// Get the path to the downloads directory
+	downloadsDirectory = new File(args[5]);
+	
+	// Check if the path exists
+	if (!downloadsDirectory.exists())
 	{
-		// Get the downloads directory
-		downloadsDirectory = new URI(args[5]);
+		// Attempt to create the downloads directory
+		if (!downloadsDirectory.mkdir())
+		{
+			throw new IllegalArgumentException("could not create downloads directory " + downloadsDirectory);
+		}
 	}
-	catch (URISyntaxException URI)
+	else if (!downloadsDirectory.isDirectory())
 	{
-		throw new IllegalArgumentException("<downloads directory> must be a valid path");
+		throw new IllegalArgumentException("<downloads directory> must be a valid path to a directory");
 	}
 }
 
@@ -321,6 +332,14 @@ public static void logoutAndExit(int exitCode)
 
 public static void closeConnectionsAndExit(int exitCode)
 {
+	// Stop the download manager
+	if (downloadManager != null)
+	{
+		System.out.print("Stopping downloads... ");
+		downloadManager.stopDownloads();
+		System.out.println("done");
+	}
+	
 	// Close the tracker connection
 	if ((trackerConnection != null) && !trackerConnection.isClosed())
 	{
