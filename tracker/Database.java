@@ -7,11 +7,14 @@ import java.util.Set;
 import java.util.Scanner;
 import java.io.FileNotFoundException;
 import java.io.File;
+import java.io.PrintStream;
 
 public class Database
 {
 	private Map<String, UserRecord> userDB;
 	private Map<String, Set<String>> fileDB;
+	private String UserDBPath;
+	private String FileDBPath;
 	/**
 	  * @return null if the filename is not in the database,
 	  * a set of user ids otherwise.
@@ -53,9 +56,48 @@ public class Database
 	{
 		return userDB.get(uid);
 	}
+	public String usersString()
+	{
+		StringBuilder sb = new StringBuilder();
+		for (UserRecord user : userDB.values())
+		{
+			sb.append(user.toString());
+			sb.append("\n");
+		}
+		sb.deleteCharAt(sb.length() - 1);
+		return sb.toString();
+	}
+	public String fileString()
+	{
+		StringBuilder sb = new StringBuilder();
+		for (Map.Entry<String, Set<String>> entry : fileDB.entrySet())
+		{
+			sb.append(entry.getKey());
+			sb.append(' ');
+			for (String username : entry.getValue())
+			{
+				sb.append(username);
+				sb.append(' ');
+			}
+			sb.deleteCharAt(sb.length() - 1);
+			sb.append("\n");
+		}
+		sb.deleteCharAt(sb.length() - 1);
+	}
+	public void writeSelf()
+	{
+		PrintStream out = new PrintStream(userDBPath);
+		out.print(userString());
+		out.close();
+		out = new PrintStream(fileDBPath);
+		out.print(fileString());
+		out.close();
+	}
 	public Database(String userDBPath, String fileDBPath)
 		throws FileNotFoundException
 	{
+		this.userDBPath = userDBPath;
+		this.fileDBPath = fileDBPath;
 		// TODO: possibly split constructor into seperate static functions
 		Scanner fileDBScanner = new Scanner(new File(fileDBPath));
 		fileDBScanner.useDelimiter("\n");
