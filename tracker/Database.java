@@ -13,7 +13,7 @@ public class Database
 {
 	private Map<String, UserRecord> userDB;
 	private Map<String, Set<String>> fileDB;
-	private String UserDBPath;
+	private String userDBPath;
 	/**
 	  * @return null if the filename is not in the database,
 	  * a set of user ids otherwise.
@@ -55,7 +55,7 @@ public class Database
 	{
 		return userDB.get(uid);
 	}
-	public String usersString()
+	public String userString()
 	{
 		StringBuilder sb = new StringBuilder();
 		for (UserRecord user : userDB.values())
@@ -68,7 +68,17 @@ public class Database
 	}
 	public void writeSelf()
 	{
-		PrintStream out = new PrintStream(userDBPath);
+		PrintStream out = null;
+		try
+		{
+			out = new PrintStream(userDBPath);
+		}
+		catch (java.io.FileNotFoundException e)
+		{
+			System.err.println("This should not have happened.");
+			System.err.println(e.getMessage());
+			System.exit(1);
+		}
 		out.print(userString());
 		out.close();
 	}
@@ -76,12 +86,8 @@ public class Database
 		throws FileNotFoundException
 	{
 		this.userDBPath = userDBPath;
-		// TODO: possibly split constructor into seperate static functions
-		Scanner fileDBScanner = new Scanner(new File(fileDBPath));
-		fileDBScanner.useDelimiter("\n");
 
 		String userID;
-		String filename;
 		Set<String> userIDs;
 		UserRecord userRecord;
 		Scanner singleFileScanner;
@@ -104,7 +110,13 @@ public class Database
 		{
 			for (String filename : entry.getValue().getFilenames())
 			{
-				fileDB.put(filename, entry.getKey());
+				userIDs = fileDB.get(filename);
+				if (userIDs == null)
+				{
+					userIDs = new HashSet<String>();
+					fileDB.put(filename, userIDs);
+				}
+				userIDs.add(entry.getKey());
 			}
 		}
 	}

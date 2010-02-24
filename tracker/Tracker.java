@@ -6,17 +6,20 @@ import java.util.TreeSet;
 import java.util.Set;
 import java.util.Arrays;
 import java.net.InetSocketAddress;
+import java.io.File;
+import java.io.IOException;
+import java.io.FileNotFoundException;
 
 class Tracker
 {
 	private Database db;
-	public Tracker(String userDB)
+	public Tracker(String userDB) throws IOException, FileNotFoundException
 	{
 		File file = new File(userDB);
 		file.createNewFile();
 		if (! file.exists() || ! file.canRead() || ! file.canWrite())
 		{
-			throw IOException("Permissions error on " + userDB + ".");
+			throw new IOException("Permissions error on " + userDB + ".");
 		}
 		db = new Database(userDB);
 	}
