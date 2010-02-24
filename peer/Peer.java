@@ -139,50 +139,64 @@ public static void main(String[] args)
 					try
 					{
 						String filename = inputLine[1];
-						
-						// Send the request
-						reply = trackerConnection.sendMessage(new SearchRequestMessage(filename));
-						
-						// Check for the right message type in the reply
-						if (reply.getMessageCode() != MessageCode.SearchReplyMessageCode)
-						{
-							System.err.println("warning: reply to SearchRequest is not a SearchReply");
-							continue;
-						}
-						
-						// Check the results returned
-						SearchReplyMessage searchReply = (SearchReplyMessage)reply;
-						if (searchReply.getPeerResults() == null)
-						{
-							System.out.println("no peer results");
-							continue;
-						}
-						
-						// List search results
-						// FIXME: WRITEME?
-						
-						// Ask if the user would like to download the file
-						System.out.print("would you like to begin downloading? (y/n) ");
-						
-						// Read the user's response
-						String response = keyboard.nextLine();
-						
-						// If the user doesn't want to download, go back to main prompt
-						if (response.charAt(0) != 'y')
-							continue;
-						
-						// Otherwise, download the file
-						// FIXME: WRITEME
 					}
 					catch (IndexOutOfBoundsException noFilename)
 					{
-						noFilename.printStackTrace();
 						System.out.println("usage: find <filename>");
+						continue;
+					}
+					
+					try
+					{
+						// Send the request
+						reply = trackerConnection.sendMessage(new SearchRequestMessage(filename));
 					}
 					catch (ErrorMessageException EME)
 					{
 						System.err.println("search error: " + EME.getMessage());
+						continue;
 					}
+					
+					// Check for the right message type in the reply
+					if (reply.getMessageCode() != MessageCode.SearchReplyMessageCode)
+					{
+						System.err.println("warning: reply to SearchRequest is not a SearchReply");
+						continue;
+					}
+					
+					// Check the results returned
+					SearchReplyMessage searchReply = (SearchReplyMessage)reply;
+					SearchReplyPeerEntry[] results = searchReply.getPeerResults();
+					if (results == null)
+					{
+						System.out.println("no peer results");
+						continue;
+					}
+					
+					// FIXME: check if the entire file is available?
+					
+					// Print the number of peers with the file
+					System.out.println(results.length + " peers found");
+					
+					// Ask if the user would like to download the file
+					System.out.print("would you like to begin downloading? (y/N) ");
+					
+					// Read the user's response
+					String response = keyboard.nextLine();
+					
+					try
+					{
+						// If the user doesn't want to download, go back to main prompt
+						if (response.charAt(0) != 'y')
+							continue;
+					}
+					catch (IndexOutOfBoundsException noResponse)
+					{
+						
+					}
+					
+					// Otherwise, download the file
+					// FIXME: WRITEME
 					
 					break;
 				}
