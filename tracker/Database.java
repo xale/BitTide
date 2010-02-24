@@ -98,13 +98,18 @@ public class Database
 		userDB = new Hashtable<String, UserRecord>();
 		fileDB = new Hashtable<String, Set<String>>();
 
-		while (userDBScanner.hasNext())
+		try
 		{
-			userRecord = new UserRecord(userDBScanner.next());
-			userDB.put(userRecord.getUserID(), userRecord);
+			while (userDBScanner.hasNext())
+			{
+				userRecord = new UserRecord(userDBScanner.next());
+				userDB.put(userRecord.getUserID(), userRecord);
+			}
+			userDBScanner.close();
 		}
-
-		userDBScanner.close();
+		catch (NullPointerException e)
+		{
+		}
 
 		for (Map.Entry<String, UserRecord> entry : userDB.entrySet())
 		{

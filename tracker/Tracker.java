@@ -12,7 +12,7 @@ import java.io.FileNotFoundException;
 
 class Tracker
 {
-	private Database db;
+	public Database db;
 	public Tracker(String userDB) throws IOException, FileNotFoundException
 	{
 		File file = new File(userDB);
