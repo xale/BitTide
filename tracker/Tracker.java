@@ -28,6 +28,10 @@ class Tracker
 		}
 		db = new Database(userDB, fileDB);
 	}
+	public void writeToDisk()
+	{
+		db.writeSelf();
+	}
 	public Message login(String username, String password, InetSocketAddress addr)
 	{
 		UserRecord user;
