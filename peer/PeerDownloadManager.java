@@ -49,4 +49,10 @@ public synchronized void updateDownloadStatus()
 	// FIXME: WRITEME
 }
 
+public synchronized int getNumDownloadsInProgress()
+{
+	// FIXME: WRITEME
+	return 0;
+}
+
 }

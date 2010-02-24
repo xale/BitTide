@@ -29,8 +29,8 @@ public static void main(String[] args)
 	}
 	catch (IllegalArgumentException badArgs)
 	{
-		System.err.println("error: " + badArgs.getMessage());
 		usage();
+		System.err.println("error: " + badArgs.getMessage());
 		System.exit(1);
 	}
 	catch (IndexOutOfBoundsException OOB)
@@ -217,7 +217,46 @@ public static void main(String[] args)
 				}
 				case exitProgram:
 				{
-					// Does nothing; do/while loop will terminate
+					// Check if there are downloads in progress
+					int downloads = downloadManager.getNumDownloadsInProgress();
+					if (downloads > 0)
+					{
+						// Warn the user about incomplete downloads
+						if (downloads > 1)
+						{
+							System.out.println("there are " + downloads + " downloads in progress");
+							System.out.println("exiting now will cancel these downloads");
+						}
+						else
+						{
+							System.out.println("there is one download in progress");
+							System.out.println("exiting now will cancel this download");
+						}
+						
+						// Confirm if the user wants to quit
+						System.out.print("are you sure you wish to exit? (y/N) ");
+						
+						// Read the user's response
+						String response = keyboard.nextLine();
+						
+						// If the user doesn't wish to quit, return to the prompt
+						try
+						{
+							if (response.charAt(0) != 'y')
+							{
+								action = PeerClientAction.invalidAction;
+								continue;
+							}
+						}
+						catch (IndexOutOfBoundsException noResponse)
+						{
+							action = PeerClientAction.invalidAction;
+							continue;
+						}
+					}
+					
+					// Otherwise, fall through and let the interaction loop terminate
+					
 					break;
 				}
 				default:
@@ -333,7 +372,7 @@ public static void logoutAndExit(int exitCode)
 public static void closeConnectionsAndExit(int exitCode)
 {
 	// Stop the download manager
-	if (downloadManager != null)
+	if ((downloadManager != null) && (downloadManager.getNumDownloadsInProgress() > 0))
 	{
 		System.out.print("Stopping downloads... ");
 		downloadManager.stopDownloads();
