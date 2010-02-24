@@ -10,23 +10,15 @@ import java.net.InetSocketAddress;
 class Tracker
 {
 	private Database db;
-	public Tracker()
+	public Tracker(String userDB)
 	{
-		String userDB = "userDB";
-		String fileDB = "fileDB";
 		File file = new File(userDB);
 		file.createNewFile();
 		if (! file.exists() || ! file.canRead() || ! file.canWrite())
 		{
 			throw IOException("Permissions error on " + userDB + ".");
 		}
-		file = new File(fileDB);
-		file.createNewFile();
-		if (! file.exists() || ! file.canRead() || ! file.canWrite())
-		{
-			throw IOException("Permissions error on " + fileDB + ".");
-		}
-		db = new Database(userDB, fileDB);
+		db = new Database(userDB);
 	}
 	public void writeToDisk()
 	{

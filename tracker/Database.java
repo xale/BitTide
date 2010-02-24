@@ -14,7 +14,6 @@ public class Database
 	private Map<String, UserRecord> userDB;
 	private Map<String, Set<String>> fileDB;
 	private String UserDBPath;
-	private String FileDBPath;
 	/**
 	  * @return null if the filename is not in the database,
 	  * a set of user ids otherwise.
@@ -67,37 +66,16 @@ public class Database
 		sb.deleteCharAt(sb.length() - 1);
 		return sb.toString();
 	}
-	public String fileString()
-	{
-		StringBuilder sb = new StringBuilder();
-		for (Map.Entry<String, Set<String>> entry : fileDB.entrySet())
-		{
-			sb.append(entry.getKey());
-			sb.append(' ');
-			for (String username : entry.getValue())
-			{
-				sb.append(username);
-				sb.append(' ');
-			}
-			sb.deleteCharAt(sb.length() - 1);
-			sb.append("\n");
-		}
-		sb.deleteCharAt(sb.length() - 1);
-	}
 	public void writeSelf()
 	{
 		PrintStream out = new PrintStream(userDBPath);
 		out.print(userString());
 		out.close();
-		out = new PrintStream(fileDBPath);
-		out.print(fileString());
-		out.close();
 	}
-	public Database(String userDBPath, String fileDBPath)
+	public Database(String userDBPath)
 		throws FileNotFoundException
 	{
 		this.userDBPath = userDBPath;
-		this.fileDBPath = fileDBPath;
 		// TODO: possibly split constructor into seperate static functions
 		Scanner fileDBScanner = new Scanner(new File(fileDBPath));
 		fileDBScanner.useDelimiter("\n");
@@ -122,30 +100,12 @@ public class Database
 
 		userDBScanner.close();
 
-		while (fileDBScanner.hasNext())
+		for (Map.Entry<String, UserRecord> entry : userDB.entrySet())
 		{
-			singleFileScanner = new Scanner(fileDBScanner.next());
-			filename = singleFileScanner.next();
-			userIDs = new HashSet<String>();
-			while (singleFileScanner.hasNext())
+			for (String filename : entry.getValue().getFilenames())
 			{
-				userID = singleFileScanner.next();
-				userRecord = userDB.get(userID);
-
-				// the user does not exist
-				if (userRecord == null)
-				{
-					System.err.printf("User ID %d does not exist.", userID);
-				}
-				else
-				{
-					// the user has this file
-					userRecord.addFilename(filename);
-					// this file has this user
-					userIDs.add(userID);
-				}
+				fileDB.put(filename, entry.getKey());
 			}
-			fileDB.put(filename, userIDs);
 		}
 	}
 }
