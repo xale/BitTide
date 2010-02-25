@@ -32,7 +32,8 @@ public PeerDownloadManager(PeerToTrackerConnection tracker, File downloadDir)
 
 public synchronized void startDownload(String filename, SearchReplyMessage downloadInfo)
 {
-	// Check if we alread have part of this file, 
+	// Check if we alread have any parts of this file
+	// FIXME: WRITEME
 	
 	// Get the list of peers seeding the file
 	SearchReplyPeerEntry[] peers = downloadInfo.getPeerResults();

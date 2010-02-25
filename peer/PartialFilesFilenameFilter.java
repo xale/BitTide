@@ -18,7 +18,7 @@ public boolean accept(File parentDirectory, String filename)
 	if (filename.startsWith(baseFilename))
 	{
 		// Construct a regex that matches when the filename ends with period-delimited start and end block indexes
-		String regex = "\\A\\.\\d+\\.\\d+\\Z";
+		String regex = "\\A\\.\\d+\\Z";
 		
 		return filename.substring(baseFilename.length()).matches(regex);
 	}
