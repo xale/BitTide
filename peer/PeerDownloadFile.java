@@ -24,9 +24,9 @@ public FileBitmap getReceivedBitmap()
 	return receivedBitmap;
 }
 
-public void updateReceivedBitmap(FileBitmap update)
+public void updateReceivedBitmap(int receivedBlockIndex)
 {
-	receivedBitmap.or(update);
+	receivedBitmap.set(receivedBlockIndex);
 }
 
 public PeerDownloadStatus getDownloadStatus()

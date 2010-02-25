@@ -89,7 +89,7 @@ public synchronized boolean blockReceived(String filename, int blockIndex)
 	}
 	catch (Exception E)
 	{
-		
+		// FIXME: WRITEME
 		return false;
 	}
 	
