@@ -57,26 +57,6 @@ class Tracker
 		return new SuccessMessage();
 		// return an error message if it fails
 	}
-	public Message logoutComplete(String username)
-	{
-		UserRecord user;
-		user = db.getUserRecordFromID(username);
-		
-		if (user == null)
-		{
-			return new ErrorMessage("Unknown user");
-		}
-
-		if (user.getLogState() != LogState.inactive)
-		{
-			return new ErrorMessage("Not inactive");
-		}
-
-		user.logout();
-
-		writeToDisk();
-		return new SuccessMessage();
-	}
 	public Message logoutReq(String username)
 	{
 		UserRecord user;
@@ -93,6 +73,26 @@ class Tracker
 		}
 
 		user.loginactive();
+
+		writeToDisk();
+		return new SuccessMessage();
+	}
+	public Message logoutComplete(String username)
+	{
+		UserRecord user;
+		user = db.getUserRecordFromID(username);
+		
+		if (user == null)
+		{
+			return new ErrorMessage("Unknown user");
+		}
+
+		if (user.getLogState() != LogState.inactive)
+		{
+			return new ErrorMessage("Not inactive");
+		}
+
+		user.logout();
 
 		writeToDisk();
 		return new SuccessMessage();

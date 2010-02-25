@@ -56,6 +56,7 @@ class Network
 		private Tracker tracker;
 		private MessageInputStream readStream;
 		private MessageOutputStream writeStream;
+		private String username;
 
 		public Client(Socket socket, Tracker tracker) throws IOException
 		{
@@ -78,7 +79,7 @@ class Network
 					socket.close();
 					return;
 				}
-				String username = ((LoginMessage) message).getUsername();
+				username = ((LoginMessage) message).getUsername();
 				String password = ((LoginMessage) message).getPassword();
 
 				debug("Attempting to connect with " + username + ":" + password + ".");
@@ -89,6 +90,32 @@ class Network
 				{
 					socket.close();
 					return;
+				}
+				boolean flag = true;
+				while (flag)
+				{
+					if (db.getUserRecordFromID(username).getLogState() == LogState.login)
+					{
+						message = readStream.readMessage();
+						switch (message.getMessageCode())
+						{
+							case SearchRequestMessageCode:
+								message = handleSearchRequest((SearchRequestMessage) message);
+								break;
+							case FileInfoMessageCode:
+								message = handleFileInfo((FileInfoMessage) message);
+								break;
+							case FileBitmapMessageCode:
+								message = handleFileBitmap((FileBitmapMessage) message);
+								break;
+							case LogoutRequestMessageCode:
+								message = handleLogoutRequest((LogoutRequestMessage) message);
+								break;
+							default:
+								message = new ErrorMessage("Bad message type.");
+						}
+						writeStream.writeMessage(message);
+					}
 				}
 			}
 			catch (IOException e)
@@ -101,6 +128,35 @@ class Network
 				{
 				}
 			}
+		}
+		private Message handleSearchRequest(SearchRequestMessage message)
+		{
+			debug("Received search request.");
+			String filename = message.getFilename();
+			debug("Searching for " + filename + ".");
+			return tracker.searchReq(username, filename);
+		}
+		private Message handleFileInfo(FileInfoMessage message)
+		{
+			debug("Received file info.");
+			String filename = message.getFilename();
+			debug("Updating " + filename + ".");
+			long file_size = message.getFileSize();
+			FileBitmap bitmap = message.getFileBitmap();
+			return tracker.fileInfo(username, filename, file_size, bitmap);
+		}
+		private Message handleFileBitmap(FileBitmapMessage message)
+		{
+			debug("Received file bitmap.");
+			String filename = message.getFilename();
+			debug("Updating " + filename + ".");
+			FileBitmap bitmap = message.getFileBitmap();
+			return tracker.fileBitmap(username, filename, bitmap);
+		}
+		private Message handleLogoutRequest(LogoutRequestMessage message)
+		{
+			debug("Received logout request.");
+			return tracker.logoutReq(username);
 		}
 	}
 }
