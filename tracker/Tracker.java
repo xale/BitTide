@@ -127,6 +127,10 @@ class Tracker
 	public Message searchReq(String username, String filename)
 	{
 		SearchReplyPeerEntry[] peers;
+		if (db.getUserIDsFromFilename(filename) == null)
+		{
+			return new ErrorMessage("File not found.");
+		}
 		UserRecord[] users = bestUsers(username, filename);
 		if (users == null || users.length == 0)
 		{
