@@ -38,10 +38,10 @@ class Tracker
 			user = new UserRecord(username, password, addr);
 			db.addUser(user);
 		}
-		else if (user.getPassword() != password) // wrong password
+		else if (! user.getPassword().equals(password)) // wrong password
 		{
 			Network.debug("Password=" + user.getPassword() + " expected.");
-			Network.debug("Password=" + password + "received.");
+			Network.debug("Password=" + password + " received.");
 			return new ErrorMessage("That's not your password!");
 		}
 		
