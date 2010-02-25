@@ -64,7 +64,6 @@ public class Database
 			sb.append(user.toString());
 			sb.append("\n");
 		}
-		sb.deleteCharAt(sb.length() - 1);
 		return sb.toString();
 	}
 	public void writeSelf()
