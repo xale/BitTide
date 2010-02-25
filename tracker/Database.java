@@ -71,9 +71,10 @@ public class Database
 	{
 		Network.debug("Writing to disk.");
 		File tmpfile = null;
+		File outfile = new File(userDBPath);
 		try
 		{
-			tmpfile = File.createTempFile("wtf", null);
+			tmpfile = File.createTempFile("wtf", ".tmp", outfile.getParentFile());
 		}
 		catch (IOException e)
 		{
@@ -81,7 +82,6 @@ public class Database
 			System.err.println(e.getMessage());
 			System.exit(1);
 		}
-		File outfile = new File(userDBPath);
 		PrintStream out = null;
 		try
 		{
