@@ -74,7 +74,7 @@ public class Database
 		Network.debug("writeSelf: outfile=" + outfile.toString() + ".");
 		try
 		{
-			tmpfile = File.createTempFile("wtf", ".tmp", outfile.getParentFile());
+			tmpfile = File.createTempFile("wtf", ".tmp", outfile.getCanonicalFile().getParentFile());
 			Network.debug("writeSelf: tmpfile=" + tmpfile.toString() + ".");
 		}
 		catch (IOException e)
