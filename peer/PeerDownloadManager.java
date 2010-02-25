@@ -59,7 +59,7 @@ public synchronized void shutdown()
 	
 	try
 	{
-		// If the thread pool's tasks don't finish in ten seconds, force termination
+		// If the existing downloads don't finish in ten seconds, force termination
 		if (!threadPool.awaitTermination(10, TimeUnit.SECONDS))
 			threadPool.shutdownNow();
 	}
