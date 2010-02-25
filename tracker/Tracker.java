@@ -6,10 +6,27 @@ import java.util.TreeSet;
 import java.util.Set;
 import java.util.Arrays;
 import java.net.InetSocketAddress;
+import java.io.File;
+import java.io.IOException;
+import java.io.FileNotFoundException;
 
 class Tracker
 {
-	private Database db;
+	public Database db;
+	public Tracker(String userDB) throws IOException, FileNotFoundException
+	{
+		File file = new File(userDB);
+		file.createNewFile();
+		if (! file.exists() || ! file.canRead() || ! file.canWrite())
+		{
+			throw new IOException("Permissions error on " + userDB + ".");
+		}
+		db = new Database(userDB);
+	}
+	public void writeToDisk()
+	{
+		db.writeSelf();
+	}
 	public Message login(String username, String password, InetSocketAddress addr)
 	{
 		UserRecord user;
@@ -31,8 +48,29 @@ class Tracker
 
 		user.login();
 
+		writeToDisk();
 		return new SuccessMessage();
 		// return an error message if it fails
+	}
+	public Message logoutComplete(String username)
+	{
+		UserRecord user;
+		user = db.getUserRecordFromID(username);
+		
+		if (user == null)
+		{
+			return new ErrorMessage("Unknown user");
+		}
+
+		if (user.getLogState() != LogState.inactive)
+		{
+			return new ErrorMessage("Not inactive");
+		}
+
+		user.logout();
+
+		writeToDisk();
+		return new SuccessMessage();
 	}
 	public Message logoutReq(String username)
 	{
@@ -51,6 +89,7 @@ class Tracker
 
 		user.loginactive();
 
+		writeToDisk();
 		return new SuccessMessage();
 	}
 	public Message fileInfo(String username, String filename, long file_size, FileBitmap fileBitmap)
@@ -63,6 +102,8 @@ class Tracker
 		user.addFilename(filename);
 		user.setFileBitmap(filename, fileBitmap);
 		user.setFileSize(filename, file_size);
+
+		writeToDisk();
 		return new SuccessMessage();
 	}
 	public Message fileBitmap(String username, String filename, FileBitmap fileBitmap)
@@ -74,6 +115,8 @@ class Tracker
 		assert (user.hasFilename(filename)); // same comment as above
 
 		user.setFileBitmap(filename, fileBitmap);
+
+		writeToDisk();
 		return new SuccessMessage();
 	}
 	public Message searchReq(String username, String filename)
@@ -95,6 +138,7 @@ class Tracker
 		{
 			peers[i] = new SearchReplyPeerEntry(users[i].getAddress(), users[i].getFileBitmap(filename));
 		}
+
 		return new SearchReplyMessage(sizeOfFile, peers);
 	}
 	private UserRecord[] bestUsers(String username, String filename)

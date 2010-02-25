@@ -6,12 +6,15 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Scanner;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.File;
+import java.io.PrintStream;
 
 public class Database
 {
 	private Map<String, UserRecord> userDB;
 	private Map<String, Set<String>> fileDB;
+	private String userDBPath;
 	/**
 	  * @return null if the filename is not in the database,
 	  * a set of user ids otherwise.
@@ -53,15 +56,54 @@ public class Database
 	{
 		return userDB.get(uid);
 	}
-	public Database(String userDBPath, String fileDBPath)
+	public String userString()
+	{
+		StringBuilder sb = new StringBuilder();
+		for (UserRecord user : userDB.values())
+		{
+			sb.append(user.toString());
+			sb.append("\n");
+		}
+		sb.deleteCharAt(sb.length() - 1);
+		return sb.toString();
+	}
+	public void writeSelf()
+	{
+		File tmpfile = null;
+		try
+		{
+			tmpfile = File.createTempFile("wtf", null);
+		}
+		catch (IOException e)
+		{
+			System.err.println("This should not have happened.");
+			System.err.println(e.getMessage());
+			System.exit(1);
+		}
+		File outfile = new File(userDBPath);
+		PrintStream out = null;
+		try
+		{
+			out = new PrintStream(tmpfile);
+		}
+		catch (FileNotFoundException e)
+		{
+			System.err.println("This should not have happened.");
+			System.err.println(e.getMessage());
+			System.exit(1);
+		}
+		out.print(userString());
+		out.close();
+
+		outfile.delete();
+		tmpfile.renameTo(outfile);
+	}
+	public Database(String userDBPath)
 		throws FileNotFoundException
 	{
-		// TODO: possibly split constructor into seperate static functions
-		Scanner fileDBScanner = new Scanner(new File(fileDBPath));
-		fileDBScanner.useDelimiter("\n");
+		this.userDBPath = userDBPath;
 
 		String userID;
-		String filename;
 		Set<String> userIDs;
 		UserRecord userRecord;
 		Scanner singleFileScanner;
@@ -72,38 +114,31 @@ public class Database
 		userDB = new Hashtable<String, UserRecord>();
 		fileDB = new Hashtable<String, Set<String>>();
 
-		while (userDBScanner.hasNext())
+		try
 		{
-			userRecord = new UserRecord(userDBScanner.next());
-			userDB.put(userRecord.getUserID(), userRecord);
+			while (userDBScanner.hasNext())
+			{
+				userRecord = new UserRecord(userDBScanner.next());
+				userDB.put(userRecord.getUserID(), userRecord);
+			}
+			userDBScanner.close();
+		}
+		catch (NullPointerException e)
+		{
 		}
 
-		userDBScanner.close();
-
-		while (fileDBScanner.hasNext())
+		for (Map.Entry<String, UserRecord> entry : userDB.entrySet())
 		{
-			singleFileScanner = new Scanner(fileDBScanner.next());
-			filename = singleFileScanner.next();
-			userIDs = new HashSet<String>();
-			while (singleFileScanner.hasNext())
+			for (String filename : entry.getValue().getFilenames())
 			{
-				userID = singleFileScanner.next();
-				userRecord = userDB.get(userID);
-
-				// the user does not exist
-				if (userRecord == null)
+				userIDs = fileDB.get(filename);
+				if (userIDs == null)
 				{
-					System.err.printf("User ID %d does not exist.", userID);
+					userIDs = new HashSet<String>();
+					fileDB.put(filename, userIDs);
 				}
-				else
-				{
-					// the user has this file
-					userRecord.addFilename(filename);
-					// this file has this user
-					userIDs.add(userID);
-				}
+				userIDs.add(entry.getKey());
 			}
-			fileDB.put(filename, userIDs);
 		}
 	}
 }

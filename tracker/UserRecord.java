@@ -71,6 +71,10 @@ public class UserRecord
 	{
 		return filenames.contains(filename);
 	}
+	public final Set<String> getFilenames()
+	{
+		return filenames;
+	}
 	/**
 	  * @param filename The filename to add to the internal set.
 	  */
