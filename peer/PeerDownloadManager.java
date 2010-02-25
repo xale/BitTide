@@ -32,10 +32,19 @@ public PeerDownloadManager(PeerToTrackerConnection tracker, File downloadDir)
 
 public synchronized void startDownload(String filename, SearchReplyMessage downloadInfo)
 {
+	// Check if we alread have any parts of this file
 	// FIXME: WRITEME
+	
+	// Get the list of peers seeding the file
+	SearchReplyPeerEntry[] peers = downloadInfo.getPeerResults();
+	
+	// FIXME: WRITEME
+	
+	// Add this file to the download list
+	downloadList.add(filename);
 }
 
-public synchronized void stopDownloads()
+public synchronized void stopDownloads(boolean sendBitmaps)
 {
 	// Iterate through the list of downloads
 	for (Map.Entry<String, PeerDownloadFile> file : downloads.entrySet())
@@ -46,6 +55,23 @@ public synchronized void stopDownloads()
 		
 		// Cancel downloads in progress
 		file.getValue().setDownloadStatus(PeerDownloadStatus.canceled);
+		
+		// If requested, send the most up-to-date bitmaps to the tracker
+		if (sendBitmaps)
+		{
+			try
+			{
+				trackerConnection.sendMessage(new FileBitmapMessage(file.getKey(), file.getValue().getReceivedBitmap()));
+			}
+			catch (IOException IOE)
+			{
+				// Nothing we can do here...
+			}
+			catch (ErrorMessageException EME)
+			{
+				// Nothing we can do here...
+			}
+		}
 	}
 }
 
@@ -55,7 +81,7 @@ public synchronized void shutdown()
 	threadPool.shutdown();
 	
 	// Cancel all downloads in-progress
-	this.stopDownloads();
+	this.stopDownloads(false);
 	
 	try
 	{
@@ -67,6 +93,12 @@ public synchronized void shutdown()
 	{
 		// If the timeout is interrupted, force termination immediately
 		threadPool.shutdownNow();
+	}
+	
+	// Remove partial downloads on disk
+	for (Map.Entry<String, PeerDownloadFile> file : downloads.entrySet())
+	{
+		this.deletePartialFiles(file.getKey());
 	}
 }
 
@@ -87,10 +119,13 @@ public synchronized boolean blockReceived(String filename, int blockIndex)
 	{
 		trackerConnection.sendMessage(new FileBitmapMessage(filename, file.getReceivedBitmap()));
 	}
-	catch (Exception E)
+	catch (IOException IOE)
 	{
-		// FIXME: WRITEME
-		return false;
+		// Not much we can do here; for now, continue downloading, and hope we can update the tracker when the next block is received or when we log out
+	}
+	catch (ErrorMessageException EME)
+	{
+		// Nothing we can do here...
 	}
 	
 	// If necessary, update the download status
@@ -105,13 +140,62 @@ public synchronized void downloadFailed(String filename)
 	// Locate the file in question
 	PeerDownloadFile file = downloads.get(filename);
 	
-	// If the download has not already been stopped for other reasons, update the status
+	// If the download has not already been stopped for other reasons, update the status, and remove the partial downloads
 	if (!file.getDownloadStatus().isStopped())
+	{
+		// Set download status to "failed"
 		file.setDownloadStatus(PeerDownloadStatus.failed);
+		
+		// Delete partial files on disk
+		this.deletePartialFiles(filename);
+	}
+}
+
+public synchronized File[] getPartialFiles(String filename)
+{
+	// Return the list of files in the downloads directory that represent partial segments of the file with the specified name
+	return downloadsDirectory.listFiles(new PartialFilesFilenameFilter(filename));
+}
+
+public synchronized void deletePartialFiles(String filename)
+{
+	// Get the list of partial files for this filename
+	File[] partialFiles = this.getPartialFiles(filename);
+	
+	// Check if the list is non-empty
+	if (partialFiles.length == 0)
+		return;
+	
+	// Delete the matching files
+	for (File file : partialFiles)
+	{
+		file.delete();
+	}
+	
+	// Send empty bitmap to the tracker, indicating that we don't have this file
+	try
+	{
+		trackerConnection.sendMessage(new FileBitmapMessage(filename, new FileBitmap()));
+	}
+	catch (IOException IOE)
+	{
+		// Nothing we can do here...
+	}
+	catch (ErrorMessageException EME)
+	{
+		// Nothing we can do here...
+	}
 }
 
 public synchronized void printDownloadStatusList()
 {
+	// Check if we have any downloads to list
+	if (downloadList.size() < 1)
+	{
+		System.out.println("no downloads to list");
+		return;
+	}
+	
 	// Iterate through the list of downloads, in the order they were added
 	PeerDownloadFile file;
 	for (String filename : downloadList)

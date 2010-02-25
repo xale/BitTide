@@ -7,10 +7,12 @@ import java.io.*;
 public class IncomingPeerConnection implements Runnable
 {
 	private Socket peerSocket = null;
+	private File downloadsDirectory = null;
 	
-public IncomingPeerConnection(Socket connectionSocket)
+public IncomingPeerConnection(Socket connectionSocket, File downloadsDir)
 {
 	peerSocket = connectionSocket;
+	downloadsDirectory = downloadsDir;
 }
 
 public void run()

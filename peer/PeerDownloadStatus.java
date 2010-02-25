@@ -7,6 +7,7 @@ public enum PeerDownloadStatus
 	finishing	("finishing download"),
 	done		("download complete"),
 	canceled	("download canceled"),
+	resuming	("resuming download"),
 	failed		("download failed");
 
 	private String statusMessage;
