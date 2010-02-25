@@ -6,15 +6,20 @@ import java.util.concurrent.*;
 
 public class PeerListenerThread extends Thread
 {
+	private File downloadsDirectory = null;
+	
 	private ServerSocket listenSocket = null;
-	private boolean listening; 
+	private boolean listening;
 	
 	private static final int SOCKET_ACCEPT_TIMEOUT = 1000; // milliseconds
 
-public PeerListenerThread(int listenPort)
+public PeerListenerThread(int listenPort, File downloadsDir)
 	throws IOException
 {
 	super("PeerListener");
+	
+	downloadsDirectory = downloadsDir;
+	
 	try
 	{
 		listenSocket = new ServerSocket(listenPort, 50, Inet4Address.getByName("localhost"));
@@ -40,7 +45,7 @@ public void run()
 		try
 		{
 			// For each incoming request, create and enqueue a job on the thread pool
-			threadPool.execute(new IncomingPeerConnection(this.getListenSocket().accept()));
+			threadPool.execute(new IncomingPeerConnection(this.getListenSocket().accept(), downloadsDirectory));
 		}
 		catch (SocketTimeoutException STE)
 		{
