@@ -64,15 +64,18 @@ public class Database
 			sb.append(user.toString());
 			sb.append("\n");
 		}
-		sb.deleteCharAt(sb.length() - 1);
 		return sb.toString();
 	}
 	public void writeSelf()
 	{
+		Network.debug("Writing to disk.");
 		File tmpfile = null;
+		File outfile = new File(userDBPath);
+		Network.debug("writeSelf: outfile=" + outfile.toString() + ".");
 		try
 		{
-			tmpfile = File.createTempFile("wtf", null);
+			tmpfile = File.createTempFile("wtf", ".tmp", outfile.getCanonicalFile().getParentFile());
+			Network.debug("writeSelf: tmpfile=" + tmpfile.toString() + ".");
 		}
 		catch (IOException e)
 		{
@@ -80,7 +83,6 @@ public class Database
 			System.err.println(e.getMessage());
 			System.exit(1);
 		}
-		File outfile = new File(userDBPath);
 		PrintStream out = null;
 		try
 		{
@@ -97,6 +99,7 @@ public class Database
 
 		outfile.delete();
 		tmpfile.renameTo(outfile);
+		Network.debug("Finished writing to disk.");
 	}
 	public Database(String userDBPath)
 		throws FileNotFoundException

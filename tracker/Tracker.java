@@ -30,14 +30,18 @@ class Tracker
 	public Message login(String username, String password, InetSocketAddress addr)
 	{
 		UserRecord user;
+		Network.debug("Looking up " + username + ".");
 		user = db.getUserRecordFromID(username);
 		if (user == null) // new user
 		{
+			Network.debug("New user.");
 			user = new UserRecord(username, password, addr);
 			db.addUser(user);
 		}
-		else if (user.getPassword() != password) // wrong password
+		else if (! user.getPassword().equals(password)) // wrong password
 		{
+			Network.debug("Password=" + user.getPassword() + " expected.");
+			Network.debug("Password=" + password + " received.");
 			return new ErrorMessage("That's not your password!");
 		}
 		
@@ -46,31 +50,12 @@ class Tracker
 			return new ErrorMessage("Not logged out");
 		}
 
+		Network.debug("Logging in.");
 		user.login();
 
 		writeToDisk();
 		return new SuccessMessage();
 		// return an error message if it fails
-	}
-	public Message logoutComplete(String username)
-	{
-		UserRecord user;
-		user = db.getUserRecordFromID(username);
-		
-		if (user == null)
-		{
-			return new ErrorMessage("Unknown user");
-		}
-
-		if (user.getLogState() != LogState.inactive)
-		{
-			return new ErrorMessage("Not inactive");
-		}
-
-		user.logout();
-
-		writeToDisk();
-		return new SuccessMessage();
 	}
 	public Message logoutReq(String username)
 	{
@@ -88,6 +73,26 @@ class Tracker
 		}
 
 		user.loginactive();
+
+		writeToDisk();
+		return new SuccessMessage();
+	}
+	public Message logoutComplete(String username)
+	{
+		UserRecord user;
+		user = db.getUserRecordFromID(username);
+		
+		if (user == null)
+		{
+			return new ErrorMessage("Unknown user");
+		}
+
+		if (user.getLogState() != LogState.inactive)
+		{
+			return new ErrorMessage("Not inactive");
+		}
+
+		user.logout();
 
 		writeToDisk();
 		return new SuccessMessage();
