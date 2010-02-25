@@ -1,8 +1,8 @@
 package tracker;
 
-import java.util.Hashtable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
-import java.util.HashSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.Set;
 import java.util.Scanner;
 import java.io.FileNotFoundException;
@@ -36,7 +36,7 @@ public class Database
 		{
 			return null;
 		}
-		Set<UserRecord> userRecords = new HashSet<UserRecord>();
+		Set<UserRecord> userRecords = new ConcurrentSkipListSet<UserRecord>();
 		for (String uid : userIDs)
 		{
 			userRecords.add(userDB.get(uid));
@@ -46,7 +46,7 @@ public class Database
 	public void addUser(UserRecord user)
 	{
 		userDB.put(user.getUserID(), user);
-		fileDB.put(user.getUserID(), new HashSet<String>());
+		fileDB.put(user.getUserID(), new ConcurrentSkipListSet<String>());
 	}
 	/**
 	  * @return null if the user id doesn't exist, the record otherwise.
@@ -114,8 +114,8 @@ public class Database
 		Scanner userDBScanner = new Scanner(new File(userDBPath));
 		userDBScanner.useDelimiter("\n");
 
-		userDB = new Hashtable<String, UserRecord>();
-		fileDB = new Hashtable<String, Set<String>>();
+		userDB = new ConcurrentHashMap<String, UserRecord>();
+		fileDB = new ConcurrentHashMap<String, Set<String>>();
 
 		try
 		{
@@ -137,7 +137,7 @@ public class Database
 				userIDs = fileDB.get(filename);
 				if (userIDs == null)
 				{
-					userIDs = new HashSet<String>();
+					userIDs = new ConcurrentSkipListSet<String>();
 					fileDB.put(filename, userIDs);
 				}
 				userIDs.add(entry.getKey());
