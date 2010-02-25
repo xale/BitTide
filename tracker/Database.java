@@ -69,6 +69,7 @@ public class Database
 	}
 	public void writeSelf()
 	{
+		Network.debug("Writing to disk.");
 		File tmpfile = null;
 		try
 		{
@@ -97,6 +98,7 @@ public class Database
 
 		outfile.delete();
 		tmpfile.renameTo(outfile);
+		Network.debug("Finished writing to disk.");
 	}
 	public Database(String userDBPath)
 		throws FileNotFoundException

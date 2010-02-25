@@ -30,14 +30,18 @@ class Tracker
 	public Message login(String username, String password, InetSocketAddress addr)
 	{
 		UserRecord user;
+		Network.debug("Looking up " + username + ".");
 		user = db.getUserRecordFromID(username);
 		if (user == null) // new user
 		{
+			Network.debug("New user.");
 			user = new UserRecord(username, password, addr);
 			db.addUser(user);
 		}
 		else if (user.getPassword() != password) // wrong password
 		{
+			Network.debug("Password=" + user.getPassword() + " expected.");
+			Network.debug("Password=" + password + "received.");
 			return new ErrorMessage("That's not your password!");
 		}
 		
@@ -46,6 +50,7 @@ class Tracker
 			return new ErrorMessage("Not logged out");
 		}
 
+		Network.debug("Logging in.");
 		user.login();
 
 		writeToDisk();

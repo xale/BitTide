@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 
 class Network
 {
-	private static void debug(String msg)
+	static void debug(String msg)
 	{
 		System.err.println(msg);
 	}
@@ -71,6 +71,7 @@ class Network
 			{
 				Message message;
 				message = readStream.readMessage();
+				debug("Got message.");
 				if (message.getMessageCode() != MessageCode.LoginMessageCode)
 				{
 					writeStream.writeMessage(new ErrorMessage("You are not logged in."));
@@ -79,6 +80,8 @@ class Network
 				}
 				String username = ((LoginMessage) message).getUsername();
 				String password = ((LoginMessage) message).getPassword();
+
+				debug("Attempting to connect with " + username + ":" + password + ".");
 				int port = ((LoginMessage) message).getListenPort();
 				message = tracker.login(username, password, new InetSocketAddress(socket.getInetAddress(), port));
 				writeStream.writeMessage(message);
