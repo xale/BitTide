@@ -149,6 +149,10 @@ class Tracker
 	private UserRecord[] bestUsers(String username, String filename)
 	{
 		Set<UserRecord> userSet = db.getUsersFromFilename(filename);
+		if (userSet == null)
+		{
+			return userSet;
+		}
 		for (UserRecord user : userSet)
 		{
 			if (user.getUserID().equals(username))
