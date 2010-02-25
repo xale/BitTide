@@ -151,7 +151,7 @@ class Tracker
 		Set<UserRecord> userSet = db.getUsersFromFilename(filename);
 		if (userSet == null)
 		{
-			return userSet;
+			return null;
 		}
 		for (UserRecord user : userSet)
 		{
