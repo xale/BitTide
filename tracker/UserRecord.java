@@ -127,17 +127,17 @@ public class UserRecord
 		{
 			throw new IllegalArgumentException("String does not have a username field.");
 		}
-		userID = scanner.next();
+		userID = scanner.next().trim();
 		if (! scanner.hasNext())
 		{
 			throw new IllegalArgumentException("String does not have a password field.");
 		}
-		password = scanner.next();
+		password = scanner.next().trim();
 		if (! scanner.hasNext())
 		{
 			throw new IllegalArgumentException("String does not have an ip address field.");
 		}
-		String ip = scanner.next();
+		String ip = scanner.next().trim();
 		if (! scanner.hasNextInt())
 		{
 			throw new IllegalArgumentException("String does not have an port field.");
