@@ -105,7 +105,9 @@ public static void main(String[] args)
 	// FIXME: WRITEME
 	
 	// Create a download manager
+	System.out.print("Creating download manager... ");
 	downloadManager = new PeerDownloadManager(trackerConnection, downloadsDirectory);
+	System.out.println("done");
 	
 	// Wrap all user interaction in a try block for network errors
 	try
@@ -212,7 +214,40 @@ public static void main(String[] args)
 				}
 				case stopDownloads:
 				{
-					// FIXME: WRITEME: stop current downloads
+					// Check if there are any downloads in progress
+					int downloads = downloadManager.getNumDownloadsInProgress();
+					if (downloads < 1)
+					{
+						System.out.println("no downloads in progress");
+						continue;
+					}
+					
+					if (downloads > 1)
+					{
+						System.out.print("are you sure you want to cancel " + downloads + " downloads in progress? (y/N) ");
+					}
+					else
+					{
+						System.out.print("are you sure you want to cancel the download in progress? (y/N) ");
+					}
+					
+					// Get the user's response
+					String response = keyboard.nextLine();
+					
+					// If the user doesn't want to stop the downloads, do nothing
+					try
+					{
+						if (response.charAt(0) != 'y')
+							continue;
+					}
+					catch (IndexOutOfBoundsException noResponse)
+					{
+						continue;
+					}
+					
+					// Otherwise, cancel all downloads
+					downloadManager.stopDownloads();
+					
 					break;
 				}
 				case exitProgram:
@@ -275,13 +310,13 @@ public static void main(String[] args)
 	{
 		System.out.println();
 		System.err.println("error: the tracker closed the connection");
-		logoutAndExit(1);
+		closeConnectionsAndExit(1);
 	}
 	catch (IOException IOE)
 	{
 		System.out.println();
 		System.err.println("a network error occurred: " + IOE.getMessage());
-		logoutAndExit(1);
+		closeConnectionsAndExit(1);
 	}
 	
 	// Close everything and exit
@@ -372,10 +407,10 @@ public static void logoutAndExit(int exitCode)
 public static void closeConnectionsAndExit(int exitCode)
 {
 	// Stop the download manager
-	if ((downloadManager != null) && (downloadManager.getNumDownloadsInProgress() > 0))
+	if (downloadManager != null)
 	{
-		System.out.print("Stopping downloads... ");
-		downloadManager.stopDownloads();
+		System.out.print("Shutting down download manager... ");
+		downloadManager.shutdown();
 		System.out.println("done");
 	}
 	
