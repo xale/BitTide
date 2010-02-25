@@ -98,7 +98,10 @@ public MessageCode getMessageCode()
 
 public int getRawMessageLength()
 {
-	return (Message.HEADER_LENGTH + Message.FILESIZE_FIELD_WIDTH + (peerResults.length * PEER_ENTRY_WIDTH));
+	if (peerResults == null)
+		return Message.HEADER_LENGTH + Message.FILESIZE_FIELD_WIDTH;
+	
+	return Message.HEADER_LENGTH + Message.FILESIZE_FIELD_WIDTH + (peerResults.length * PEER_ENTRY_WIDTH);
 }
 
 public ByteBuffer getRawMessage()
@@ -111,10 +114,16 @@ public ByteBuffer getRawMessage()
 	rawMessage.putInt(this.getRawMessageLength());
 	
 	// Write the size of the file
+	rawMessage.putInt((int)fileSize);
 	
 	// Write the peer result entries
-	for (int i = 0; i < peerResults.length; i++)
-		rawMessage.put(peerResults[i].getRawEntry());
+	if (peerResults != null)
+	{
+		for (int i = 0; i < peerResults.length; i++)
+		{
+			rawMessage.put(peerResults[i].getRawEntry());
+		}
+	}
 	
 	return rawMessage;
 }
