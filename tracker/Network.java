@@ -138,13 +138,18 @@ class Network
 			catch (EOFException e)
 			{
 				debug("Got EOFException.");
+				debug("It says \"" + e.getMessage() + ".\"");
 				debug("Client has disconnected.");
-				tracker.logoutReq(username);
-				tracker.logoutComplete(username);
+				if (username != null)
+				{
+					tracker.logoutReq(username);
+					tracker.logoutComplete(username);
+				}
 			}
 			catch (IOException e)
 			{
 				debug("Got IOException.");
+				debug("It says \"" + e.getMessage() + ".\"");
 				try
 				{
 					socket.close();
