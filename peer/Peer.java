@@ -43,7 +43,7 @@ public static void main(String[] args)
 	try
 	{
 		System.out.print("Starting peer listener... ");
-		peerListener = new PeerListenerThread(listenPort);
+		peerListener = new PeerListenerThread(listenPort, downloadsDirectory);
 		peerListener.start();
 		System.out.println("done");
 	}
