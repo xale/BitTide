@@ -28,15 +28,14 @@ public abstract class Message
 	public static final int BITMAP_FIELD_WIDTH = 	FileBitmap.FILE_BITMAP_NUM_BYTES;
 	// File-block index value
 	public static final int BLOCKINDEX_FIELD_WIDTH =	2;
-	
-	// Maximum data payload for a MSG_FILE_REP
-	public static final int MAX_DATA_SIZE = 		(16 * 1024);
+	// File-block data size
+	public static final int MAX_BLOCK_SIZE =		(16 * 1024);
 	
 	// Width of an entry in a MSG_SEARCH_REP
 	public static final int PEER_ENTRY_WIDTH = IP_FIELD_WIDTH + PORT_FIELD_WIDTH + BITMAP_FIELD_WIDTH;
 	
 	// Maximum message length; only MSG_FILE_REP can be this long
-	public static final long MAX_MESSAGE_LENGTH =	HEADER_LENGTH + BLOCKINDEX_FIELD_WIDTH + MAX_DATA_SIZE;
+	public static final long MAX_MESSAGE_LENGTH =	HEADER_LENGTH + BLOCKINDEX_FIELD_WIDTH + MAX_BLOCK_SIZE;
 
 public abstract MessageCode getMessageCode();
 
