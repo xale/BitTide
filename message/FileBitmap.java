@@ -29,7 +29,7 @@ public FileBitmap(byte[] bitmap)
 }
 
 /**
-* Creates a new FileBitmap with an empty byte array.
+* Creates a new FileBitmap representing an empty file.
 */
 public FileBitmap()
 {
@@ -49,6 +49,21 @@ public FileBitmap(long fileSize)
 	
 	// Set the bits representing all blocks in this file
 	for (int i = 0; i < numBlocks; i++)
+	{
+		this.set(i);
+	}
+}
+
+/**
+* Creates a new FileBitmap representing a file for which we have the specified block indexes.
+* @param blockIndexes the indexes of the blocks of this file that we have
+*/
+public FileBitmap(int[] blockIndexes)
+{
+	super(FILE_BITMAP_SIZE);
+	
+	// Set the specified bits
+	for (int i : blockIndexes)
 	{
 		this.set(i);
 	}
