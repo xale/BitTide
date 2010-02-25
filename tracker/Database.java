@@ -71,11 +71,11 @@ public class Database
 		Network.debug("Writing to disk.");
 		File tmpfile = null;
 		File outfile = new File(userDBPath);
-		Network.debug("writeSelf: outfile=" + outfile.toString() + ".")
+		Network.debug("writeSelf: outfile=" + outfile.toString() + ".");
 		try
 		{
 			tmpfile = File.createTempFile("wtf", ".tmp", outfile.getParentFile());
-			Network.debug("writeSelf: tmpfile=" + tmpfile.toString() + ".")
+			Network.debug("writeSelf: tmpfile=" + tmpfile.toString() + ".");
 		}
 		catch (IOException e)
 		{
