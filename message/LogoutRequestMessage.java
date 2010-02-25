@@ -15,8 +15,7 @@ public LogoutRequestMessage(String peerName)
 public LogoutRequestMessage(ByteBuffer contents)
 {
 	// Read the username
-	int nameLength = contents.array().length - (Message.PORT_FIELD_WIDTH + Message.PASSWORD_FIELD_WIDTH);
-	byte[] rawName = new byte[nameLength];
+	byte[] rawName = new byte[contents.array().length];
 	contents.get(rawName);
 	
 	// Convert to a string
