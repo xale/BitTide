@@ -11,14 +11,20 @@ import java.util.concurrent.ExecutorService;
 
 class Network
 {
+	private static void debug(String msg)
+	{
+		System.err.println(msg);
+	}
 	public static void main(String[] args) throws IOException
 	{
-		final Tracker tracker;
+		Tracker tracker;
 		ServerSocket serverSocket = null;
 
 		int port = Integer.parseInt(args[0]);
 		String userDB = args[1];
+
 		tracker = new Tracker(userDB);
+		debug("Opened tracker with \"" + userDB + "\" as database.");
 
 		try
 		{
@@ -30,6 +36,7 @@ class Network
 			System.err.println(e.getMessage());
 			System.exit(1);
 		}
+		debug("Opened socket listening on port " + port + ".");
 
 		ExecutorService threadPool = Executors.newCachedThreadPool();
 		boolean flag = true;
@@ -38,6 +45,7 @@ class Network
 		while (flag)
 		{
 			socket = serverSocket.accept();
+			debug("Accepting connection.");
 			threadPool.execute(new Client(socket, tracker));
 		}
 	}
