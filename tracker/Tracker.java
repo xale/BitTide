@@ -72,7 +72,6 @@ class Tracker
 
 		user.loginactive();
 
-		writeToDisk();
 		return new SuccessMessage();
 	}
 	public Message logoutComplete(String username)
@@ -92,7 +91,6 @@ class Tracker
 
 		user.logout();
 
-		writeToDisk();
 		return new SuccessMessage();
 	}
 	public Message fileInfo(String username, String filename, long file_size, FileBitmap fileBitmap)
