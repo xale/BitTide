@@ -15,7 +15,16 @@ public PeerListenerThread(int listenPort)
 	throws IOException
 {
 	super("PeerListener");
-	listenSocket = new ServerSocket(listenPort);
+	try
+	{
+		listenSocket = new ServerSocket(listenPort, 50, Inet4Address.getByName("localhost"));
+	}
+	catch (UnknownHostException UHE)
+	{
+		// If this happens, something seriously wrong is going on; just bail
+		throw new IOException(UHE.getMessage());
+	}
+	
 	listenSocket.setSoTimeout(SOCKET_ACCEPT_TIMEOUT);
 }
 
