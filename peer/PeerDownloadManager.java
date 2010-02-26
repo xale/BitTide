@@ -237,10 +237,65 @@ public synchronized boolean blockReceived(String filename, int blockIndex)
 	}
 	
 	// If necessary, update the download status
-	if (file.getDownloadStatus() == PeerDownloadStatus.notStarted)
+	FileBitmap completeBitmap = new FileBitmap(file.getFileSize());
+	completeBitmap.xor(file.getReceivedBitmap());
+
+	if (completeBitmap.cardinality() == 0) // file is complete
+	{
+		try
+		{
+			finalizeFile(filename);
+			cleanupPieces(filename);
+		}
+		catch (IOException e)
+		{
+			System.err.println(e.getMessage());
+			file.setDownloadStatus(PeerDownloadStatus.failed);
+		}
+	}
+	else if (file.getDownloadStatus() == PeerDownloadStatus.notStarted || file.getDownloadStatus() == PeerDownloadStatus.restarting)
+	{
 		file.setDownloadStatus(PeerDownloadStatus.inProgress);
-	
+	}
 	return true;
+}
+
+private synchronized void finalizeFile(String filename) throws IOException
+{
+	File downloadFile = new File(downloadsDirectory, filename);
+	File[] partialFiles = getPartialFiles(filename);
+	FileOutputStream ofstream = new FileOutputStream(downloadFile);
+	FileInputStream ifstream = null;
+	byte[] contents;
+	try
+	{
+		for (File partialFile : partialFiles)
+		{
+			ifstream = new FileInputStream(partialFile);
+			contents = new byte[(int) partialFile.length()];
+			ifstream.read(contents);
+			ofstream.write(contents);
+			ifstream.close();
+		}
+	}
+	catch (IOException e)
+	{
+		throw e;
+	}
+	finally
+	{
+		ofstream.close();
+	}
+}
+
+private synchronized void cleanupPieces(String filename)
+{
+	File[] partialFiles = getPartialFiles(filename);
+	for (File partialFile : partialFiles)
+	{
+		partialFile.delete();
+		partialFile.deleteOnExit();
+	}
 }
 
 public synchronized void downloadFailed(String filename)
