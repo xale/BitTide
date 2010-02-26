@@ -106,13 +106,13 @@ public static void main(String[] args)
 	downloadManager = new PeerDownloadManager(trackerConnection, downloadsDirectory);
 	System.out.println("done");
 	
-	// Send the list of files we're seeding to the server
+	// Send the list of files we're seeding to the tracker
+	System.out.print("Sending seeded file list to tracker... ");
 	File[] sharedFiles = downloadsDirectory.listFiles();
 	for (File sharedFile : sharedFiles)
 	{
 		try
 		{
-			System.out.print("Sending file info for " + sharedFile.getName() + ".");
 			trackerConnection.sendMessage(new FileInfoMessage(sharedFile));
 		}
 		catch (ErrorMessageException e)
@@ -135,6 +135,7 @@ public static void main(String[] args)
 			closeConnectionsAndExit(1);
 		}
 	}
+	System.out.println("done");
 	
 	// Wrap all user interaction in a try block for network errors
 	try
@@ -237,7 +238,7 @@ public static void main(String[] args)
 					catch (RuntimeException RE)
 					{
 						System.out.println();
-						System.err.println("download failed: " + RE.getMessage());
+						System.err.println("couldn't start download: " + RE.getMessage());
 					}
 					
 					break;
