@@ -152,6 +152,7 @@ public class UserRecord
 			filename = scanner.next();
 			filenames.add(scanner.next());
 			bitmaps.put(filename, new FileBitmap());
+			bitmaps.put(filename, Long.valueOf(0));
 		}
 		
 		// Set the default login state of a user to be logged out
@@ -182,6 +183,7 @@ public class UserRecord
 		address = addr;
 		filenames = new ConcurrentSkipListSet<String>();
 		bitmaps = new ConcurrentHashMap<String, FileBitmap>();
+		sizemaps = new ConcurrentHashMap<String, Long>();
 		logState = LogState.logout;
 	}
 }
