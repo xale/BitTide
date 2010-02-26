@@ -31,14 +31,9 @@ public void run()
 {
 	try
 	{
-		System.out.println();
-		System.out.println("DEBUG: starting download of file " + filename);
-		
 		// Open streams on the socket to the peer
 		MessageInputStream readStream = new MessageInputStream(peerSocket.getInputStream());
 		MessageOutputStream writeStream = new MessageOutputStream(peerSocket.getOutputStream());
-		
-		System.out.println("       streams open");
 		
 		// Request each of the blocks from the peer
 		int startIndex = 1, endIndex, numRequested, numReceived;
@@ -59,15 +54,10 @@ public void run()
 					break;
 			}
 			
-			System.out.println("       requesting blocks " + startIndex + " through " + (endIndex - 1));
-			
 			// Request the range from the peer
 			writeStream.writeMessage(new FileRequestMessage(filename, startIndex, (endIndex - 1)));
 			
 			numRequested = endIndex - startIndex;
-			
-			System.out.println("       " + numRequested + " blocks requested, awaiting responses");
-			
 			for (numReceived = 0; numReceived < numRequested; numReceived++)
 			{
 				// Wait for the response
@@ -79,8 +69,6 @@ public void run()
 				
 				FileReplyMessage fileReply = (FileReplyMessage)replyMessage;
 				
-				System.out.println("              response received for block: " + fileReply.getBlockIndex());
-				
 				// Attempt to update the file's bitmap; if the download manager returns "false," abandon the download
 				if (!downloadManager.blockReceived(filename, fileReply.getBlockIndex()))
 					throw new Exception("download abandoned at request of DownloadManager");
@@ -90,14 +78,11 @@ public void run()
 			}
 			
 			// Advance indexes
-			// FIXME: WRITEME
+			startIndex = endIndex + 1;
 		}
 	}
 	catch (Exception E)
 	{
-		// FIXME: DEBUG
-		System.err.println("DEBUG: exception in download: " + E.getMessage());
-	
 		// Inform the download manager that the download has failed
 		downloadManager.downloadFailed(filename);
 	}
