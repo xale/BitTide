@@ -200,10 +200,18 @@ public static void main(String[] args)
 						continue;
 					}
 					
-					// Otherwise, download the file
-					System.out.print("Starting download... ");
-					downloadManager.startDownload(filename, searchReply);
-					System.out.println("started");
+					// Otherwise, attempt download the file
+					try
+					{
+						System.out.print("beginning download... ");
+						downloadManager.startDownload(filename, searchReply);
+						System.out.println("download started");
+					}
+					catch (RuntimeException RE)
+					{
+						System.out.println();
+						System.err.println("download failed: " + RE.getMessage());
+					}
 					
 					break;
 				}
@@ -248,7 +256,9 @@ public static void main(String[] args)
 					}
 					
 					// Otherwise, cancel all downloads, and send the most up-to-date bitmaps to the tracker
+					System.out.print("stopping downloads... ");
 					downloadManager.stopDownloads(true);
+					System.out.println("downloads canceled");
 					
 					break;
 				}
