@@ -152,7 +152,7 @@ public class UserRecord
 			filename = scanner.next();
 			filenames.add(scanner.next());
 			bitmaps.put(filename, new FileBitmap());
-			bitmaps.put(filename, Long.valueOf(0));
+			sizemaps.put(filename, Long.valueOf(0));
 		}
 		
 		// Set the default login state of a user to be logged out
