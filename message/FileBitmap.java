@@ -55,21 +55,6 @@ public FileBitmap(long fileSize)
 }
 
 /**
-* Creates a new FileBitmap representing a file for which we have the specified block indexes.
-* @param blockIndexes the indexes of the blocks of this file that we have
-*/
-public FileBitmap(int[] blockIndexes)
-{
-	super(FILE_BITMAP_SIZE);
-	
-	// Set the specified bits
-	for (int i : blockIndexes)
-	{
-		this.set(i);
-	}
-}
-
-/**
 * Get the number of blocks of the represented file that are in this bitmap; i.e., the number of bits set to true.
 */
 public int getNumberOfBlocks()
