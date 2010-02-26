@@ -27,7 +27,7 @@ public abstract class Message
 	// File-bitmap
 	public static final int BITMAP_FIELD_WIDTH = 	FileBitmap.FILE_BITMAP_NUM_BYTES;
 	// File-block index value
-	public static final int BLOCKINDEX_FIELD_WIDTH =	2;
+	public static final int BLOCKINDEX_FIELD_WIDTH = 2;
 	// File-block data size
 	public static final int MAX_BLOCK_SIZE =		(16 * 1024);
 	

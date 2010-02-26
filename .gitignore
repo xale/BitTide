@@ -1,3 +1,5 @@
 *.class
 .*.swp
 downloads/
+uploads/
+

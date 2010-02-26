@@ -1,6 +1,8 @@
 package peer;
 
-import java.io.*
+import java.io.*;
+import java.nio.*;
+import java.net.*;
 import message.*;
 
 public class OutgoingPeerConnection implements Runnable
@@ -19,7 +21,7 @@ public OutgoingPeerConnection(PeerDownloadManager manager, InetSocketAddress add
 	downloadManager = manager;
 	filename = nameOfFile;
 	blocksRequested = blocksToDownload;
-	downloadsDirector = destinationDirectory;
+	downloadsDirectory = destinationDirectory;
 	
 	// Attempt to open a socket to the peer
 	peerSocket = new Socket(address.getAddress(), address.getPort());
@@ -27,53 +29,75 @@ public OutgoingPeerConnection(PeerDownloadManager manager, InetSocketAddress add
 
 public void run()
 {
-	// Open streams on the socket to the peer
-	MessageInputStream readStream = new MessageInputStream(peerSocket.getInputStream());
-	MessageOutputStream writeStream = new MessageOutputStream(peerSocket.getOutputStream());
-	
 	try
 	{
+		System.out.println();
+		System.out.println("DEBUG: starting download of file " + filename);
+		
+		// Open streams on the socket to the peer
+		MessageInputStream readStream = new MessageInputStream(peerSocket.getInputStream());
+		MessageOutputStream writeStream = new MessageOutputStream(peerSocket.getOutputStream());
+		
+		System.out.println("       streams open");
+		
 		// Request each of the blocks from the peer
-		int startIndex = 0, endIndex;
-		while (startIndex > FileBitmap.FILE_BITMAP_SIZE)
+		int startIndex = 1, endIndex, numRequested, numReceived;
+		while (startIndex <= FileBitmap.FILE_BITMAP_SIZE)
 		{
 			// Check if we need this block from this peer
 			if (!blocksRequested.get(startIndex))
 			{
-				i++;
+				startIndex++;
 				continue;
 			}
 			
 			// Determine if this block is part of a contiguous range
-			endIndex = startIndex + 1;
-			while (endIndex < FileBitmap.FILE_BITMAP_SIZE)
+			
+			for (endIndex = startIndex + 1; endIndex <= FileBitmap.FILE_BITMAP_SIZE; endIndex++)
 			{
 				if (!blocksRequested.get(endIndex))
 					break;
 			}
 			
+			System.out.println("       requesting blocks " + startIndex + " through " + (endIndex - 1));
+			
 			// Request the range from the peer
 			writeStream.writeMessage(new FileRequestMessage(filename, startIndex, (endIndex - 1)));
 			
-			// Wait for the response
-			Message replyMessage = readStream.readMessage();
+			numRequested = endIndex - startIndex;
 			
-			// Check that the response is a MSG_FILE_REP
-			if (replyMessage.getMessageCode() != MessageCode.fileReplyMessage)
-				throw new Exception();
+			System.out.println("       " + numRequested + " blocks requested, awaiting responses");
 			
-			FileReplyMessage fileReply = (FileReplyMessage)replyMessage;
+			for (numReceived = 0; numReceived < numRequested; numReceived++)
+			{
+				// Wait for the response
+				Message replyMessage = readStream.readMessage();
+				
+				// Check that the response is a MSG_FILE_REP
+				if (replyMessage.getMessageCode() != MessageCode.FileReplyMessageCode)
+					throw new Exception("FileRequest response is not a FileReply");
+				
+				FileReplyMessage fileReply = (FileReplyMessage)replyMessage;
+				
+				System.out.println("              response received for block: " + fileReply.getBlockIndex());
+				
+				// Attempt to update the file's bitmap; if the download manager returns "false," abandon the download
+				if (!downloadManager.blockReceived(filename, fileReply.getBlockIndex()))
+					throw new Exception("download abandoned at request of DownloadManager");
+				
+				// Write the received block to disk
+				// FIXME: WRITEME
+			}
 			
-			// Attempt to update the file's bitmap; if the download manager returns "false," abandon the download
-			if (!downloadManager.blockReceieved(filename, fileReply.getBlockIndex()))
-				throw new Exception();
-			
-			// Write the received block to disk
+			// Advance indexes
 			// FIXME: WRITEME
 		}
 	}
 	catch (Exception E)
 	{
+		// FIXME: DEBUG
+		System.err.println("DEBUG: exception in download: " + E.getMessage());
+	
 		// Inform the download manager that the download has failed
 		downloadManager.downloadFailed(filename);
 	}
@@ -83,7 +107,7 @@ public void run()
 		try
 		{
 			if (!peerSocket.isClosed())
-				
+				peerSocket.close();
 		}
 		catch (Exception E)
 		{

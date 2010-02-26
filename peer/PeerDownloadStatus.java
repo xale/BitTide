@@ -5,8 +5,9 @@ public enum PeerDownloadStatus
 	notStarted	("starting download"),
 	inProgress	("download in progress"),
 	finishing	("finishing download"),
-	done		("download complete"),
+	complete	("download complete"),
 	canceled	("download canceled"),
+	restarting	("restarting download"),
 	failed		("download failed");
 
 	private String statusMessage;
@@ -28,7 +29,7 @@ public String toString()
 
 public boolean isStopped()
 {
-	return (this == done) || (this == canceled) || (this == failed);
+	return (this == complete) || (this == canceled) || (this == failed);
 }
 
 }

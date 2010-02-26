@@ -16,9 +16,10 @@ public MessageInputStream(InputStream in)
 *	@return the next message on the stream, encapsulated in the appropriate Message subclass
 *	@throws EOFException if an end-of-file is encountered before the message can be constructed fully
 *	@throws IOException if reading from the stream fails, if an unknown message code is received, or if the length field of the message is greater than the maximum possible message length
+*	@throws ErrorMessageException if the message received is an ErrorMessage; the exception message will be the error message description
 */
 public Message readMessage()
-	throws IOException, EOFException
+	throws IOException, EOFException, ErrorMessageException
 {
 	// Read the first byte of the message
 	byte firstByte = super.readByte();
@@ -74,7 +75,7 @@ public Message readMessage()
 			return new LogoutRequestMessage(messagePayload);
 			
 		case ErrorMessageCode:
-			return new ErrorMessage(messagePayload);
+			throw new ErrorMessageException(new ErrorMessage(messagePayload));
 			
 		case FileRequestMessageCode:
 			return new FileRequestMessage(messagePayload);
