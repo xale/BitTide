@@ -39,14 +39,7 @@ public synchronized Message sendMessage(Message message)
 	writeStream.writeMessage(message);
 	
 	// Read the tracker's reply from the input stream
-	Message replyMessage = readStream.readMessage();
-	
-	// If the message is an error, throw an exception
-	if (replyMessage.getMessageCode() == MessageCode.ErrorMessageCode)
-		throw new ErrorMessageException((ErrorMessage)replyMessage);
-	
-	// Otherwise, return the reply message
-	return replyMessage;
+	return readStream.readMessage();
 }
 
 public synchronized boolean isClosed()
