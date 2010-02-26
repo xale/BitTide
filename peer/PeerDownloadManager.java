@@ -129,7 +129,7 @@ public synchronized void startDownload(String filename, SearchReplyMessage downl
 	FileBitmap commonBlocks;
 	for (SearchReplyPeerEntry peer : peers)
 	{
-		commonBlocks = peer.getFileBitmap();
+		commonBlocks = new FileBitmap(peer.getFileBitmap());
 		commonBlocks.and(blocksNeeded);
 		
 		if (commonBlocks.equals(blocksNeeded))
@@ -150,6 +150,47 @@ public synchronized void startDownload(String filename, SearchReplyMessage downl
 	// If not all blocks could be located, cancel the download and throw an exception
 	download.setDownloadStatus(PeerDownloadStatus.failed);
 	throw new RuntimeException("couldn't get all blocks of file " + filename);
+}
+
+public synchronized void choosePeers(String filename, SearchReplyPeerEntry[] peers, FileBitmap blocksNeeded)
+{
+	/*
+	// Construct a priority queue to sort the block indexes by their rarity
+	PriorityQueue<BlockIndexFrequency> blockFrequencies = new PriorityQueue<BlockIndexFrequency>();
+	for (int i = 1; i <= FileBitmap.FILE_BITMAP_SIZE; i++)
+	{
+		if (blocksNeeded.get(i))
+			blockFrequencies.add(new BlockIndexFrequency(i, peers));
+	}
+	
+	// Request the rarest blocks first
+	while (blockFrequencies.size() > 0)
+	{
+		// Check that the frequency is greater than zero
+	}
+	*/
+	
+	/*
+	Set sortedPeers = new TreeSet(
+	int maxRangeSize = (blocksNeeded.getNumberOfBlocks() / peers.length);
+	FileBitmap blocksRemaining = blocksNeeded.clone();
+	
+	SearchReplyPeerEntry peer;
+	int startIndex = 1, endIndex;
+	while (int startIndex
+	{
+		for (int startIndex = 1; startIndex <= FileBitmap.FILE_BITMAP_SIZE; startIndex++)
+		{
+			if (blocksRemaining.get(startIndex))
+				continue;
+			
+			for (SearchReplyPeerEntry peer : sortedPeers)
+			{
+				if (
+			}
+		}
+	}
+	*/
 }
 
 public synchronized void stopDownloads(boolean sendBitmaps)
@@ -303,6 +344,7 @@ public synchronized void printDownloadStatusList()
 	
 	// Iterate through the list of downloads, in the order they were added
 	PeerDownloadFile file;
+	FileBitmap bitmap;
 	for (String filename : downloadList)
 	{
 		// Get the download entry
@@ -312,12 +354,20 @@ public synchronized void printDownloadStatusList()
 		System.out.println(filename + " (" + file.getDownloadStatus() + "):");
 		
 		// Calculate the download progress
-		int downloadedBlocks = file.getReceivedBitmap().getNumberOfBlocks();
+		bitmap = file.getReceivedBitmap();
+		int downloadedBlocks = bitmap.getNumberOfBlocks();
 		int totalBlocks = (int)Math.ceil((double)file.getFileSize() / (double)Message.MAX_BLOCK_SIZE);
 		
-		// FIXME: calculate bytes downloaded out of total bytes?
-		
 		// Print the download progress
+		System.out.print("\t");
+		for (int i = 0; i < totalBlocks; i++)
+		{
+			if (bitmap.get(i))
+				System.out.print("1");
+			else
+				System.out.print("0");
+		}
+		System.out.println();
 		System.out.println("\t" + downloadedBlocks + " out of " + totalBlocks + " blocks");
 	}
 }
