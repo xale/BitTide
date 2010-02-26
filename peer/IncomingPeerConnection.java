@@ -3,6 +3,7 @@ package peer;
 import java.net.*;
 import java.util.*;
 import java.io.*;
+import java.nio.*;
 import message.*;
 
 public class IncomingPeerConnection implements Runnable
@@ -30,7 +31,7 @@ private byte[] getBlock(RandomAccessFile inFile, String downloadFileName, int bl
 		inFile.seek((blockIndex - 1) * Message.MAX_BLOCK_SIZE);
 		if ( blockIndex * Message.MAX_BLOCK_SIZE > inFile.length() )
 		{
-			retval = new byte[inFile.length() - (blockIndex - 1) * Message.MAX_BLOCK_SIZE];
+			retval = new byte[(int) (inFile.length() - (blockIndex - 1) * Message.MAX_BLOCK_SIZE)];
 		}
 		else
 		{
@@ -75,8 +76,8 @@ public void run()
 			// we have the whole file
 			inFile = new RandomAccessFile(downloadFile, "r");
 		}
-		byte[] block;
-		for (int blockNumber = fileRequestMessage.getBeginBlockIndex(); blockNumber <= FileRequestMessage.getEndBlockIndex(); ++blockNumber)
+		byte[] block = null;
+		for (int blockNumber = fileRequestMessage.getBeginBlockIndex(); blockNumber <= fileRequestMessage.getEndBlockIndex(); ++blockNumber)
 		{
 			try
 			{
@@ -84,7 +85,7 @@ public void run()
 			}
 			catch (IOException e)
 			{
-				writeStream.writeMessage(new ErrorMessage("Could not find block " + blockNumber + " of file " + fileRequestMessage.getFilename() + ".");
+				writeStream.writeMessage(new ErrorMessage("Could not find block " + blockNumber + " of file " + fileRequestMessage.getFilename() + "."));
 			}
 			writeStream.writeMessage(new FileReplyMessage(ByteBuffer.wrap(block)));
 		}
