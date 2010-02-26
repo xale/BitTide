@@ -2,9 +2,9 @@ package tracker;
 
 import java.net.InetSocketAddress;
 import java.util.Set;
-import java.util.HashSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.Map;
-import java.util.Hashtable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Scanner;
 import java.lang.IllegalArgumentException;
 import message.FileBitmap;
@@ -144,10 +144,15 @@ public class UserRecord
 		}
 		int port = scanner.nextInt();
 		address = new InetSocketAddress(ip, port);
-		filenames = new HashSet<String>();
+		filenames = new ConcurrentSkipListSet<String>();
+		bitmaps = new ConcurrentHashMap<String, FileBitmap>();
+		String filename;
 		while (scanner.hasNext())
 		{
+			filename = scanner.next();
 			filenames.add(scanner.next());
+			bitmaps.put(filename, new FileBitmap());
+			sizemaps.put(filename, Long.valueOf(0));
 		}
 		
 		// Set the default login state of a user to be logged out
@@ -176,7 +181,9 @@ public class UserRecord
 		userID = uid;
 		password = pass;
 		address = addr;
-		filenames = new HashSet<String>();
+		filenames = new ConcurrentSkipListSet<String>();
+		bitmaps = new ConcurrentHashMap<String, FileBitmap>();
+		sizemaps = new ConcurrentHashMap<String, Long>();
 		logState = LogState.logout;
 	}
 }

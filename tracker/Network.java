@@ -5,6 +5,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.IOException;
+import java.io.EOFException;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
@@ -118,6 +119,31 @@ class Network
 						}
 						writeStream.writeMessage(message);
 					}
+					else if (db.getUserRecordFromID(username).getLogState() == LogState.inactive)
+					{
+						message = readStream.readMessage();
+						debug("Got a message.");
+						switch (message.getMessageCode())
+						{
+							case FileBitmapMessageCode:
+								message = handleFileBitmap((FileBitmapMessage) message);
+								break;
+							case LogoutCompleteMessageCode:
+								message = handleLogoutComplete((LogoutCompleteMessage) message);
+								break;
+						}
+					}
+				}
+			}
+			catch (EOFException e)
+			{
+				debug("Got EOFException.");
+				debug("It says \"" + e.getMessage() + ".\"");
+				debug("Client has disconnected.");
+				if (username != null)
+				{
+					tracker.logoutReq(username);
+					tracker.logoutComplete(username);
 				}
 			}
 			catch (ErrorMessageException e)
@@ -125,6 +151,8 @@ class Network
 			}
 			catch (IOException e)
 			{
+				debug("Got IOException.");
+				debug("It says \"" + e.getMessage() + ".\"");
 			}
 			finally
 			{
@@ -165,6 +193,11 @@ class Network
 		{
 			debug("Received logout request.");
 			return tracker.logoutReq(username);
+		}
+		private Message handleLogoutComplete(LogoutCompleteMessage message)
+		{
+			debug("Received logout complete.");
+			return tracker.logoutComplete(username);
 		}
 	}
 }
