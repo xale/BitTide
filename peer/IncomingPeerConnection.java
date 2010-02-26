@@ -16,21 +16,21 @@ public IncomingPeerConnection(Socket connectionSocket, File downloadsDir)
 	downloadsDirectory = downloadsDir;
 }
 
-private byte[] getBlock(RandomAccessFile inFile, String downloadFileName, int block) throws IOException
+private byte[] getBlock(RandomAccessFile inFile, String downloadFileName, int blockIndex) throws IOException
 {
 	byte[] retval;
 	if (inFile == null)
 	{
 		retval = new byte[Message.MAX_BLOCK_SIZE];
-		RandomAccessFile block = new RandomAccessFile(downloadFileName + "." + block, "r");
+		RandomAccessFile block = new RandomAccessFile(downloadFileName + "." + blockIndex, "r");
 		block.read(retval);
 	}
 	else
 	{
-		inFile.seek(block * Message.MAX_BLOCK_SIZE);
-		if ( (block + 1) * Message.MAX_BLOCK_SIZE > inFile.length() )
+		inFile.seek((blockIndex - 1) * Message.MAX_BLOCK_SIZE);
+		if ( blockIndex * Message.MAX_BLOCK_SIZE > inFile.length() )
 		{
-			retval = new byte[inFile.length() - block * Message.MAX_BLOCK_SIZE];
+			retval = new byte[inFile.length() - (blockIndex - 1) * Message.MAX_BLOCK_SIZE];
 		}
 		else
 		{
@@ -88,6 +88,9 @@ public void run()
 			}
 			writeStream.writeMessage(new FileReplyMessage(ByteBuffer.wrap(block)));
 		}
+	}
+	catch (ErrorMessageException e)
+	{
 	}
 	catch (Exception e)
 	{
