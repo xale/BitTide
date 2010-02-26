@@ -63,8 +63,8 @@ public void run()
 	
 	try
 	{
-		// If the current task doesn't finish in ten seconds, force termination
-		if (!threadPool.awaitTermination(10, TimeUnit.SECONDS))
+		// If the current task doesn't finish in five seconds, force termination
+		if (!threadPool.awaitTermination(5, TimeUnit.SECONDS))
 			threadPool.shutdownNow();
 	}
 	catch (InterruptedException E)

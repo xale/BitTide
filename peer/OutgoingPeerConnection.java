@@ -74,7 +74,8 @@ public void run()
 					throw new Exception("download canceled");
 				
 				// Write the received block to disk
-				FileOutputStream foutStream = new FileOutputStream(filename + "." + fileReply.getBlockIndex());
+				File downloadLocation = new File(downloadsDirectory, filename + "." + fileReply.getBlockIndex());
+				FileOutputStream foutStream = new FileOutputStream(downloadLocation);
 				foutStream.write(fileReply.getBlockContents().array());
 				foutStream.close();
 			}

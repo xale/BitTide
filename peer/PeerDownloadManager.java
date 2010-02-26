@@ -234,8 +234,8 @@ public synchronized void shutdown()
 	
 	try
 	{
-		// If the existing downloads don't finish in ten seconds, force termination
-		if (!threadPool.awaitTermination(10, TimeUnit.SECONDS))
+		// If the existing downloads don't finish in five seconds, force termination
+		if (!threadPool.awaitTermination(5, TimeUnit.SECONDS))
 			threadPool.shutdownNow();
 	}
 	catch (InterruptedException E)
