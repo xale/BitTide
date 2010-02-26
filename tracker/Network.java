@@ -88,6 +88,7 @@ class Network
 				writeStream.writeMessage(message);
 				if (message.getMessageCode() != MessageCode.SuccessMessageCode)
 				{
+					debug("Error logging in; exiting thread.");
 					socket.close();
 					return;
 				}
@@ -97,6 +98,7 @@ class Network
 					if (db.getUserRecordFromID(username).getLogState() == LogState.login)
 					{
 						message = readStream.readMessage();
+						debug("Got a message.");
 						switch (message.getMessageCode())
 						{
 							case SearchRequestMessageCode:
@@ -118,7 +120,13 @@ class Network
 					}
 				}
 			}
+			catch (ErrorMessageException e)
+			{
+			}
 			catch (IOException e)
+			{
+			}
+			finally
 			{
 				try
 				{
