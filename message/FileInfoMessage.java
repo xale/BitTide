@@ -10,16 +10,17 @@ public class FileInfoMessage extends Message
 	private long fileSize;
 	private FileBitmap fileBitmap;
 	
-public FileInfoMessage(String nameOfFile, long size, FileBitmap bitmap)
+public FileInfoMessage(File file)
 	throws IllegalArgumentException
 {
+	String filename = file.getName();
 	// Check the length of the filename
-	if (nameOfFile.length() > Message.MAX_FILENAME_LENGTH)
-		throw new IllegalArgumentException("filename too long: " + nameOfFile);
+	if (filename.length() > Message.MAX_FILENAME_LENGTH)
+		throw new IllegalArgumentException("filename too long: " + filename);
 	
-	filename = nameOfFile;
-	fileSize = size;
-	fileBitmap = bitmap;
+	this.filename = filename;
+	this.fileSize = file.length();
+	this.fileBitmap = new FileBitmap(this.fileSize);
 }
 	
 public FileInfoMessage(ByteBuffer contents)

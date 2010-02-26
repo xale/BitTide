@@ -107,7 +107,34 @@ public static void main(String[] args)
 	System.out.println("done");
 	
 	// Send the list of files we're seeding to the server
-	// FIXME: WRITEME
+	File[] sharedFiles = downloadsDirectory.listFiles();
+	for (File sharedFile : sharedFiles)
+	{
+		try
+		{
+			System.out.print("Sending file info for " + sharedFile.getName() + ".");
+			trackerConnection.sendMessage(new FileInfoMessage(sharedFile));
+		}
+		catch (ErrorMessageException e)
+		{
+			System.out.println();
+			System.err.println("error sending file info for file " + sharedFile.getName() + ".");
+		}
+		catch (EOFException EOFE)
+		{
+			System.out.println();
+			System.err.print("error sending file info for file " + sharedFile.getName() + ":");
+			System.err.println(" tracker closed connection.");
+			closeConnectionsAndExit(1);
+		}
+		catch (IOException IOE)
+		{
+			System.out.println();
+			System.err.print("error sending file info for file " + sharedFile.getName() + ":");
+			System.err.println(" a network error occurred: " + IOE.getMessage());
+			closeConnectionsAndExit(1);
+		}
+	}
 	
 	// Wrap all user interaction in a try block for network errors
 	try

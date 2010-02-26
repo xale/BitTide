@@ -74,7 +74,9 @@ public void run()
 					throw new Exception("download canceled");
 				
 				// Write the received block to disk
-				// FIXME: WRITEME
+				FileOutputStream foutStream = new FileOutputStream(filename + "." + fileReply.getBlockIndex());
+				foutStream.write(fileReply.getBlockContents().array());
+				foutStream.close();
 			}
 			
 			// Advance indexes
