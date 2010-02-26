@@ -31,17 +31,125 @@ public PeerDownloadManager(PeerToTrackerConnection tracker, File downloadDir)
 }
 
 public synchronized void startDownload(String filename, SearchReplyMessage downloadInfo)
+	throws RuntimeException
 {
-	// Check if we alread have any parts of this file
-	// FIXME: WRITEME
+	// Check if we have already downloaded part or all of this file
+	PeerDownloadFile download = downloads.get(filename);
+	if (download != null)
+	{
+		// Determine the state of the previous download for this file
+		switch (download.getDownloadStatus())
+		{
+			case notStarted:
+			case restarting:
+			case inProgress:
+			case finishing:
+			{
+				// Download already in progress; inform the user
+				System.out.println();
+				System.out.println("the file " + filename + " is already being downloaded");
+				return;
+			}
+			case complete:
+			{
+				// Ask if the user wants to re-download the file
+				System.out.println();
+				System.out.println("the file " + filename + " has already been downloaded");
+				System.out.print("would you like to download the file again? (y/N) ");
+				
+				// Read the user's response
+				String response = new Scanner(System.in).nextLine();
+				
+				// If the user doesn't want to re-download, abort
+				try
+				{
+					if (response.charAt(0) != 'y')
+						return;
+				}
+				catch (IndexOutOfBoundsException noResponse)
+				{
+					return;
+				}
+				
+				// Otherwise, restart the download
+				System.out.print("beginning download... ");
+				download = new PeerDownloadFile(download.getFileSize());
+				download.setDownloadStatus(PeerDownloadStatus.restarting);
+				downloads.put(filename, download);
+				
+				break;
+			}	
+			case canceled:
+			case failed:
+			{
+				// Restart the download
+				download.setDownloadStatus(PeerDownloadStatus.restarting);
+				
+				break;
+			}	
+		}
+	}
+	// Otherwise, create a new DownloadFile entry, to track the state of this download
+	else
+	{
+		// Create the download information object
+		download = new PeerDownloadFile(downloadInfo.getFileSize());
+		
+		// Map the filename to the download info
+		downloads.put(filename, download);
+		
+		// Add the name of this file to the download list
+		downloadList.add(filename);
+		
+		// Check if we already have any parts of this file
+		File[] partialFilesOnDisk = this.getPartialFiles(filename);
+		String partialFileName;
+		int blockNumber;
+		for (int i = 0; i < partialFilesOnDisk.length; i++)
+		{
+			// Get the name of the file
+			partialFileName = partialFilesOnDisk[i].getName();
+			
+			// Get the block number of this partial file
+			blockNumber = Integer.parseInt(partialFileName.substring(filename.length() + 1));
+			
+			// Add the block number to the bitmap
+			download.updateReceivedBitmap(blockNumber);
+		}
+	}
 	
 	// Get the list of peers seeding the file
 	SearchReplyPeerEntry[] peers = downloadInfo.getPeerResults();
 	
-	// FIXME: WRITEME
+	// XOR the bitmap of the file that we have with the bitmap of the full file to determine the blocks of the file we are missing
+	FileBitmap blocksNeeded = new FileBitmap(downloadInfo.getFileSize());
+	blocksNeeded.xor(download.getReceivedBitmap());
 	
-	// Add this file to the download list
-	downloadList.add(filename);
+	// FIXME: debug implementation
+	FileBitmap commonBlocks;
+	for (SearchReplyPeerEntry peer : peers)
+	{
+		commonBlocks = peer.getFileBitmap();
+		commonBlocks.and(blocksNeeded);
+		
+		if (commonBlocks.equals(blocksNeeded))
+		{
+			// Start a download thread
+			try
+			{
+				threadPool.execute(new OutgoingPeerConnection(this, peer.getAddress(), filename, blocksNeeded, downloadsDirectory));
+				return;
+			}
+			catch (IOException IOE)
+			{
+				// Try the next peer
+			}
+		}
+	}
+	
+	// If not all blocks could be located, cancel the download and throw an exception
+	download.setDownloadStatus(PeerDownloadStatus.failed);
+	throw new RuntimeException("couldn't get all blocks of file " + filename);
 }
 
 public synchronized void stopDownloads(boolean sendBitmaps)
@@ -140,14 +248,11 @@ public synchronized void downloadFailed(String filename)
 	// Locate the file in question
 	PeerDownloadFile file = downloads.get(filename);
 	
-	// If the download has not already been stopped for other reasons, update the status, and remove the partial downloads
+	// If the download has not already been stopped for other reasons, update the status
 	if (!file.getDownloadStatus().isStopped())
 	{
 		// Set download status to "failed"
 		file.setDownloadStatus(PeerDownloadStatus.failed);
-		
-		// Delete partial files on disk
-		this.deletePartialFiles(filename);
 	}
 }
 
