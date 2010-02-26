@@ -151,11 +151,11 @@ class Network
 			}
 			catch (IOException e)
 			{
+				debug("Got IOException.");
+				debug("It says \"" + e.getMessage() + ".\"");
 			}
 			finally
 			{
-				debug("Got IOException.");
-				debug("It says \"" + e.getMessage() + ".\"");
 				try
 				{
 					socket.close();
