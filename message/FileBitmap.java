@@ -54,6 +54,13 @@ public FileBitmap(long fileSize)
 	}
 }
 
+public FileBitmap(FileBitmap copyMe)
+{
+	super(FILE_BITMAP_SIZE);
+	
+	this.or(copyMe);
+}
+
 /**
 * Get the number of blocks of the represented file that are in this bitmap; i.e., the number of bits set to true.
 */

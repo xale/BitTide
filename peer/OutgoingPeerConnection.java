@@ -71,10 +71,11 @@ public void run()
 				
 				// Attempt to update the file's bitmap; if the download manager returns "false," abandon the download
 				if (!downloadManager.blockReceived(filename, fileReply.getBlockIndex()))
-					throw new Exception("download abandoned at request of DownloadManager");
+					throw new Exception("download canceled");
 				
 				// Write the received block to disk
-				FileOutputStream foutStream = new FileOutputStream(filename + "." + fileReply.getBlockIndex());
+				File downloadLocation = new File(downloadsDirectory, filename + "." + fileReply.getBlockIndex());
+				FileOutputStream foutStream = new FileOutputStream(downloadLocation);
 				foutStream.write(fileReply.getBlockContents().array());
 				foutStream.close();
 			}
