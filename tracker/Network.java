@@ -120,7 +120,13 @@ class Network
 					}
 				}
 			}
+			catch (ErrorMessageException e)
+			{
+			}
 			catch (IOException e)
+			{
+			}
+			finally
 			{
 				try
 				{
