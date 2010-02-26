@@ -43,7 +43,7 @@ public static void main(String[] args)
 	try
 	{
 		System.out.print("Starting peer listener... ");
-		peerListener = new PeerListenerThread(listenPort);
+		peerListener = new PeerListenerThread(listenPort, downloadsDirectory);
 		peerListener.start();
 		System.out.println("done");
 	}
@@ -101,13 +101,13 @@ public static void main(String[] args)
 		closeConnectionsAndExit(1);
 	}
 	
-	// Send the list of files we're seeding to the server
-	// FIXME: WRITEME
-	
 	// Create a download manager
 	System.out.print("Creating download manager... ");
 	downloadManager = new PeerDownloadManager(trackerConnection, downloadsDirectory);
 	System.out.println("done");
+	
+	// Send the list of files we're seeding to the server
+	// FIXME: WRITEME
 	
 	// Wrap all user interaction in a try block for network errors
 	try
@@ -180,8 +180,6 @@ public static void main(String[] args)
 						continue;
 					}
 					
-					// FIXME: check if the entire file is available?
-					
 					// Print the number of peers with the file
 					System.out.println(results.length + " peers found");
 					
@@ -202,14 +200,26 @@ public static void main(String[] args)
 						continue;
 					}
 					
-					// Otherwise, download the file
-					downloadManager.startDownload(filename, searchReply);
+					// Otherwise, attempt download the file
+					try
+					{
+						System.out.print("beginning download... ");
+						downloadManager.startDownload(filename, searchReply);
+						System.out.println("download started");
+					}
+					catch (RuntimeException RE)
+					{
+						System.out.println();
+						System.err.println("download failed: " + RE.getMessage());
+					}
 					
 					break;
 				}
 				case printDownloads:
 				{
-					// FIXME: WRITEME: print current downloads
+					// Print the list of downloads
+					downloadManager.printDownloadStatusList();
+					
 					break;
 				}
 				case stopDownloads:
@@ -245,8 +255,10 @@ public static void main(String[] args)
 						continue;
 					}
 					
-					// Otherwise, cancel all downloads
-					downloadManager.stopDownloads();
+					// Otherwise, cancel all downloads, and send the most up-to-date bitmaps to the tracker
+					System.out.print("stopping downloads... ");
+					downloadManager.stopDownloads(true);
+					System.out.println("downloads canceled");
 					
 					break;
 				}

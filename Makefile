@@ -1,4 +1,4 @@
-ALL=tracker peer
+ALL=clean tracker peer
 all: $(ALL)
 main: $(ALL)
 
@@ -7,6 +7,7 @@ tracker: tracker/Tracker.class
 peer: peer/Peer.class
 
 # Cleaning rules
+.PHONY:clean
 clean:
 	rm -rf message/*.class peer/*.class tracker/*.class
 
@@ -14,5 +15,5 @@ clean:
 peer/Peer.class: peer/Peer.java
 	javac $^
 	
-tracker/Tracker.class: tracker/*.java
+tracker/Tracker.class: tracker/Network.java
 	javac $^

@@ -29,11 +29,29 @@ public FileBitmap(byte[] bitmap)
 }
 
 /**
-* Creates a new FileBitmap with an empty byte array.
+* Creates a new FileBitmap representing an empty file.
 */
 public FileBitmap()
 {
 	super(FILE_BITMAP_SIZE);
+}
+
+/**
+* Creates a new FileBitmap representing a complete file of the specified size.
+* @param fileSize the size in bytes of the file represented by this bitmap
+*/
+public FileBitmap(long fileSize)
+{
+	super(FILE_BITMAP_SIZE);
+	
+	// Determine the number of bits in this bitmap
+	int numBlocks = (int)Math.ceil((double)fileSize / (double)Message.MAX_BLOCK_SIZE);
+	
+	// Set the bits representing all blocks in this file
+	for (int i = 0; i < numBlocks; i++)
+	{
+		this.set(i);
+	}
 }
 
 /**
@@ -42,6 +60,21 @@ public FileBitmap()
 public int getNumberOfBlocks()
 {
 	return super.cardinality();
+}
+
+public String toString()
+{
+	StringBuilder string = new StringBuilder(FILE_BITMAP_SIZE);
+	
+	for (int i = 0; i < FILE_BITMAP_SIZE; i++)
+	{
+		if (this.get(i))
+			string.append("1");
+		else
+			string.append("0");
+	}
+	
+	return string.toString();
 }
 
 public ByteBuffer getRawBitmap()

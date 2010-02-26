@@ -1,8 +1,6 @@
-package peer;
+package message;
 
-import message.*;
-
-public class ErrorMessageException extends Exception
+public class ErrorMessageException extends RuntimeException
 {
 
 public ErrorMessageException(ErrorMessage message)

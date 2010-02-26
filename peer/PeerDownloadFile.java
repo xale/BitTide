@@ -7,7 +7,7 @@ public class PeerDownloadFile
 	private long fileSize = 0;
 	private FileBitmap receivedBitmap = null;
 	private PeerDownloadStatus downloadStatus = PeerDownloadStatus.notStarted;
-	
+
 public PeerDownloadFile(long size)
 {
 	fileSize = size;
@@ -26,7 +26,7 @@ public FileBitmap getReceivedBitmap()
 
 public void updateReceivedBitmap(int receivedBlockIndex)
 {
-	receivedBitmap.set(receivedBlockIndex);
+	receivedBitmap.set(receivedBlockIndex - 1);
 }
 
 public PeerDownloadStatus getDownloadStatus()
