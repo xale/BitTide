@@ -3,6 +3,7 @@ package peer;
 import java.net.*;
 import java.util.*;
 import java.io.*;
+import message.*;
 
 public class IncomingPeerConnection implements Runnable
 {
@@ -15,16 +16,41 @@ public IncomingPeerConnection(Socket connectionSocket, File downloadsDir)
 	downloadsDirectory = downloadsDir;
 }
 
+private byte[] getBlock(RandomAccessFile inFile, String downloadFileName, int block) throws IOException
+{
+	byte[] retval;
+	if (inFile == null)
+	{
+		retval = new byte[Message.MAX_BLOCK_SIZE];
+		RandomAccessFile block = new RandomAccessFile(downloadFileName + "." + block, "r");
+		block.read(retval);
+	}
+	else
+	{
+		inFile.seek(block * Message.MAX_BLOCK_SIZE);
+		if ( (block + 1) * Message.MAX_BLOCK_SIZE > inFile.length() )
+		{
+			retval = new byte[inFile.length() - block * Message.MAX_BLOCK_SIZE];
+		}
+		else
+		{
+			retval = new byte[Message.MAX_BLOCK_SIZE];
+		}
+		inFile.readFully(retval);
+	}
+	return retval;
+}
+
 public void run()
 {
-	InputStream readStream;
-	OutputStream writeStream;
+	MessageInputStream readStream;
+	MessageOutputStream writeStream;
 	
 	try
 	{
 		// Open streams to peer
-		readStream = peerSocket.getInputStream();
-		writeStream = peerSocket.getOutputStream();
+		readStream = new MessageInputStream(peerSocket.getInputStream());
+		writeStream = new MessageOutputStream(peerSocket.getOutputStream());
 	}
 	catch (Exception E)
 	{
@@ -34,7 +60,34 @@ public void run()
 
 	try
 	{
-		// FIXME: WRITEME: handle connection
+		Message message = readStream.readMessage();
+		if (message.getMessageCode() != MessageCode.FileRequestMessageCode)
+		{
+			writeStream.writeMessage(new ErrorMessage("Expected file request, got message with code " + message.getMessageCode() + "."));
+		}
+
+		FileRequestMessage fileRequestMessage = (FileRequestMessage) message;
+		
+		File downloadFile = new File(downloadsDirectory, fileRequestMessage.getFilename());
+		RandomAccessFile inFile = null;
+		if (downloadFile.isFile())
+		{
+			// we have the whole file
+			inFile = new RandomAccessFile(downloadFile, "r");
+		}
+		byte[] block;
+		for (int blockNumber = fileRequestMessage.getBeginBlockIndex(); blockNumber <= FileRequestMessage.getEndBlockIndex(); ++blockNumber)
+		{
+			try
+			{
+				block = getBlock(inFile, downloadFile.getPath(), blockNumber);
+			}
+			catch (IOException e)
+			{
+				writeStream.writeMessage(new ErrorMessage("Could not find block " + blockNumber + " of file " + fileRequestMessage.getFilename() + ".");
+			}
+			writeStream.writeMessage(new FileReplyMessage(ByteBuffer.wrap(block)));
+		}
 	}
 	catch (Exception e)
 	{
