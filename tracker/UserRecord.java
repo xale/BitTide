@@ -145,9 +145,13 @@ public class UserRecord
 		int port = scanner.nextInt();
 		address = new InetSocketAddress(ip, port);
 		filenames = new ConcurrentSkipListSet<String>();
+		bitmaps = new ConcurrentHashMap<String, FileBitmap>();
+		String filename;
 		while (scanner.hasNext())
 		{
+			filename = scanner.next();
 			filenames.add(scanner.next());
+			bitmaps.put(filename, new FileBitmap());
 		}
 		
 		// Set the default login state of a user to be logged out
@@ -177,6 +181,7 @@ public class UserRecord
 		password = pass;
 		address = addr;
 		filenames = new ConcurrentSkipListSet<String>();
+		bitmaps = new ConcurrentHashMap<String, FileBitmap>();
 		logState = LogState.logout;
 	}
 }
