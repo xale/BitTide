@@ -1,8 +1,6 @@
 package tracker;
 
 import message.*;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.Set;
 import java.util.Arrays;
 import java.net.InetSocketAddress;
@@ -74,7 +72,6 @@ class Tracker
 
 		user.loginactive();
 
-		writeToDisk();
 		return new SuccessMessage();
 	}
 	public Message logoutComplete(String username)
@@ -94,7 +91,6 @@ class Tracker
 
 		user.logout();
 
-		writeToDisk();
 		return new SuccessMessage();
 	}
 	public Message fileInfo(String username, String filename, long file_size, FileBitmap fileBitmap)
@@ -127,6 +123,10 @@ class Tracker
 	public Message searchReq(String username, String filename)
 	{
 		SearchReplyPeerEntry[] peers;
+		if (db.getUserIDsFromFilename(filename) == null)
+		{
+			return new ErrorMessage("File not found.");
+		}
 		UserRecord[] users = bestUsers(username, filename);
 		if (users == null || users.length == 0)
 		{
@@ -149,6 +149,10 @@ class Tracker
 	private UserRecord[] bestUsers(String username, String filename)
 	{
 		Set<UserRecord> userSet = db.getUsersFromFilename(filename);
+		if (userSet == null)
+		{
+			return null;
+		}
 		for (UserRecord user : userSet)
 		{
 			if (user.getUserID().equals(username))
