@@ -146,6 +146,7 @@ public class UserRecord
 		address = new InetSocketAddress(ip, port);
 		filenames = new ConcurrentSkipListSet<String>();
 		bitmaps = new ConcurrentHashMap<String, FileBitmap>();
+		sizemaps = new ConcurrentHashMap<String, Long>();
 		String filename;
 		while (scanner.hasNext())
 		{
