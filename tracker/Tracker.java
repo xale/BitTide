@@ -1,8 +1,6 @@
 package tracker;
 
 import message.*;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.Set;
 import java.util.Arrays;
 import java.net.InetSocketAddress;
@@ -74,7 +72,6 @@ class Tracker
 
 		user.loginactive();
 
-		writeToDisk();
 		return new SuccessMessage();
 	}
 	public Message logoutComplete(String username)
@@ -94,7 +91,6 @@ class Tracker
 
 		user.logout();
 
-		writeToDisk();
 		return new SuccessMessage();
 	}
 	public Message fileInfo(String username, String filename, long file_size, FileBitmap fileBitmap)
