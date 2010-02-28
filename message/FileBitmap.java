@@ -69,6 +69,21 @@ public int getNumberOfBlocks()
 	return super.cardinality();
 }
 
+public boolean hasBlockAtIndex(int blockIndex)
+{
+	return super.get(blockIndex - 1);
+}
+
+public void setHasBlockAtIndex(int blockIndex, boolean value)
+{
+	super.set((blockIndex - 1), value);
+}
+
+public void setHasBlockAtIndex(int blockIndex)
+{
+	super.set(blockIndex - 1);
+}
+
 public String toString()
 {
 	StringBuilder string = new StringBuilder(FILE_BITMAP_SIZE);

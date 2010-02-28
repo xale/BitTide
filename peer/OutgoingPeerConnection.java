@@ -36,48 +36,47 @@ public void run()
 		MessageOutputStream writeStream = new MessageOutputStream(peerSocket.getOutputStream());
 		
 		// Request each of the blocks from the peer
-		int startIndex = 1, endIndex, numRequested, numReceived;
+		int startIndex = 1, endIndex;
 		while (startIndex <= FileBitmap.FILE_BITMAP_SIZE)
 		{
 			// Check if we need this block from this peer
-			if (!blocksRequested.get(startIndex))
+			if (!blocksRequested.hasBlockAtIndex(startIndex))
 			{
 				startIndex++;
 				continue;
 			}
 			
 			// Determine if this block is part of a contiguous range
-			
 			for (endIndex = startIndex + 1; endIndex <= FileBitmap.FILE_BITMAP_SIZE; endIndex++)
 			{
-				if (!blocksRequested.get(endIndex))
+				if (!blocksRequested.hasBlockAtIndex(endIndex))
 					break;
 			}
 			
 			// Request the range from the peer
 			writeStream.writeMessage(new FileRequestMessage(filename, startIndex, (endIndex - 1)));
 			
-			numRequested = endIndex - startIndex;
-			for (numReceived = 0; numReceived < numRequested; numReceived++)
+			int numRequested = endIndex - startIndex;
+			for (int numReceived = 0; numReceived < numRequested; numReceived++)
 			{
 				// Wait for the response
 				Message replyMessage = readStream.readMessage();
 				
 				// Check that the response is a MSG_FILE_REP
 				if (replyMessage.getMessageCode() != MessageCode.FileReplyMessageCode)
-					throw new Exception("FileRequest response is not a FileReply");
+					throw new RuntimeException("FileRequest response is not a FileReply");
 				
 				FileReplyMessage fileReply = (FileReplyMessage)replyMessage;
 				
-				// Attempt to update the file's bitmap; if the download manager returns "false," abandon the download
-				if (!downloadManager.blockReceived(filename, fileReply.getBlockIndex()))
-					throw new Exception("download canceled");
+				// Ask the download manager if it still wants blocks of this file
+				if (!downloadManager.wantsBlocksForFile(filename))
+					throw new RuntimeException("download canceled");
 				
-				// Write the received block to disk
-				File downloadLocation = new File(downloadsDirectory, filename + "." + fileReply.getBlockIndex());
-				FileOutputStream foutStream = new FileOutputStream(downloadLocation);
-				foutStream.write(fileReply.getBlockContents().array());
-				foutStream.close();
+				// Write the received block to disk in a temporary file
+				this.writeBlock(fileReply.getBlockIndex(), fileReply.getBlockContents());
+				
+				// Update the bitmap for this file
+				downloadManager.blockReceived(filename, fileReply.getBlockIndex());
 			}
 			
 			// Advance indexes
@@ -87,6 +86,7 @@ public void run()
 	catch (Exception E)
 	{
 		// Inform the download manager that the download has failed
+		// FIXME: report reason
 		downloadManager.downloadFailed(filename);
 	}
 	finally
@@ -105,8 +105,12 @@ public void run()
 }
 
 private void writeBlock(int blockIndex, ByteBuffer blockContents)
+	throws FileNotFoundException, IOException
 {
-
+	File downloadLocation = new File(downloadsDirectory, filename + "." + blockIndex);
+	FileOutputStream foutStream = new FileOutputStream(downloadLocation);
+	foutStream.write(blockContents.array());
+	foutStream.close();
 }
 
 }
