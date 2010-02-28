@@ -107,10 +107,18 @@ public void run()
 private void writeBlock(int blockIndex, ByteBuffer blockContents)
 	throws FileNotFoundException, IOException
 {
-	File downloadLocation = new File(downloadsDirectory, filename + "." + blockIndex);
-	FileOutputStream foutStream = new FileOutputStream(downloadLocation);
-	foutStream.write(blockContents.array());
-	foutStream.close();
+	FileOutputStream foutStream = null;
+	try
+	{
+		File downloadLocation = new File(downloadsDirectory, filename + "." + blockIndex);
+		foutStream = new FileOutputStream(downloadLocation);
+		foutStream.write(blockContents.array());
+	}
+	finally
+	{
+		if (foutStream != null)
+			foutStream.close();
+	}
 }
 
 }
