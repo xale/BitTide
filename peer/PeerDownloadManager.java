@@ -419,8 +419,8 @@ public synchronized void printDownloadStatusList()
 		int totalBlocks = (int)Math.ceil((double)file.getFileSize() / (double)Message.MAX_BLOCK_SIZE);
 		
 		// Print the download progress
-		System.out.println("\t" + bitmap);
-		System.out.println("\t" + downloadedBlocks + " out of " + totalBlocks + " blocks");
+		System.out.println("  [" + bitmap.getStringForBitmapOfSize(totalBlocks) + "]");
+		System.out.println("  " + downloadedBlocks + " out of " + totalBlocks + " blocks");
 	}
 }
 

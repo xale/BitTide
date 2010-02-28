@@ -86,9 +86,14 @@ public void setHasBlockAtIndex(int blockIndex)
 
 public String toString()
 {
+	return this.getStringForBitmapOfSize(FILE_BITMAP_SIZE);
+}
+
+public String getStringForBitmapOfSize(int size)
+{
 	StringBuilder string = new StringBuilder(FILE_BITMAP_SIZE);
 	
-	for (int i = 0; i < FILE_BITMAP_SIZE; i++)
+	for (int i = 0; i < size; i++)
 	{
 		if (this.get(i))
 			string.append("1");
