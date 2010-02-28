@@ -146,9 +146,8 @@ public synchronized void startDownload(String filename, SearchReplyMessage downl
 		}
 	}
 	
-	// If not all blocks could be located, cancel the download and throw an exception
-	download.setDownloadStatus(PeerDownloadStatus.failed);
-	throw new RuntimeException("couldn't get all blocks of file " + filename);
+	// If not all blocks could be located, cancel the download
+	this.downloadFailed(filename, "not all blocks available");
 }
 
 public synchronized void choosePeers(String filename, SearchReplyPeerEntry[] peers, FileBitmap blocksNeeded)
@@ -328,7 +327,7 @@ private synchronized void finalizeFile(String filename)
 	}
 }
 
-public synchronized void downloadFailed(String filename)
+public synchronized void downloadFailed(String filename, String reason)
 {
 	// Locate the file in question
 	PeerDownloadFile file = downloads.get(filename);
@@ -338,6 +337,9 @@ public synchronized void downloadFailed(String filename)
 	{
 		// Set download status to "failed"
 		file.setDownloadStatus(PeerDownloadStatus.failed);
+		
+		// Record the reason the download failed
+		file.setFailureReason(reason);
 	}
 }
 
@@ -401,7 +403,15 @@ public synchronized void printDownloadStatusList()
 		file = downloads.get(filename);
 		
 		// Print the name and status of the file
-		System.out.println(filename + " (" + file.getDownloadStatus() + "):");
+		System.out.print(filename + " (" + file.getDownloadStatus());
+		if (file.getDownloadStatus() == PeerDownloadStatus.failed)
+		{
+			System.out.println(": " + file.getFailureReason() + ")");
+		}
+		else
+		{
+			System.out.println(")");
+		}
 		
 		// Calculate the download progress
 		bitmap = file.getReceivedBitmap();

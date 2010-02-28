@@ -86,8 +86,7 @@ public void run()
 	catch (Exception E)
 	{
 		// Inform the download manager that the download has failed
-		// FIXME: report reason
-		downloadManager.downloadFailed(filename);
+		downloadManager.downloadFailed(filename, E.getMessage());
 	}
 	finally
 	{
