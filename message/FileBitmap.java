@@ -54,6 +54,13 @@ public FileBitmap(long fileSize)
 	}
 }
 
+public FileBitmap(FileBitmap copyMe)
+{
+	super(FILE_BITMAP_SIZE);
+	
+	this.or(copyMe);
+}
+
 /**
 * Get the number of blocks of the represented file that are in this bitmap; i.e., the number of bits set to true.
 */
@@ -62,11 +69,31 @@ public int getNumberOfBlocks()
 	return super.cardinality();
 }
 
+public boolean hasBlockAtIndex(int blockIndex)
+{
+	return super.get(blockIndex - 1);
+}
+
+public void setHasBlockAtIndex(int blockIndex, boolean value)
+{
+	super.set((blockIndex - 1), value);
+}
+
+public void setHasBlockAtIndex(int blockIndex)
+{
+	super.set(blockIndex - 1);
+}
+
 public String toString()
+{
+	return this.getStringForBitmapOfSize(FILE_BITMAP_SIZE);
+}
+
+public String getStringForBitmapOfSize(int size)
 {
 	StringBuilder string = new StringBuilder(FILE_BITMAP_SIZE);
 	
-	for (int i = 0; i < FILE_BITMAP_SIZE; i++)
+	for (int i = 0; i < size; i++)
 	{
 		if (this.get(i))
 			string.append("1");

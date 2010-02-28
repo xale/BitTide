@@ -30,8 +30,7 @@ public PeerDownloadManager(PeerToTrackerConnection tracker, File downloadDir)
 	threadPool = Executors.newCachedThreadPool();
 }
 
-public synchronized void startDownload(String filename, SearchReplyMessage downloadInfo)
-	throws RuntimeException
+public synchronized boolean startDownload(String filename, SearchReplyMessage downloadInfo)
 {
 	// Check if we have already downloaded part or all of this file
 	PeerDownloadFile download = downloads.get(filename);
@@ -129,7 +128,7 @@ public synchronized void startDownload(String filename, SearchReplyMessage downl
 	FileBitmap commonBlocks;
 	for (SearchReplyPeerEntry peer : peers)
 	{
-		commonBlocks = peer.getFileBitmap();
+		commonBlocks = new FileBitmap(peer.getFileBitmap());
 		commonBlocks.and(blocksNeeded);
 		
 		if (commonBlocks.equals(blocksNeeded))
@@ -137,7 +136,7 @@ public synchronized void startDownload(String filename, SearchReplyMessage downl
 			// Start a download thread
 			try
 			{
-				threadPool.execute(new OutgoingPeerConnection(this, peer.getAddress(), filename, blocksNeeded, downloadsDirectory));
+				threadPool.execute(new OutgoingPeerConnection(this, peer.getAddress(), filename, commonBlocks, downloadsDirectory));
 				return;
 			}
 			catch (IOException IOE)
@@ -147,9 +146,49 @@ public synchronized void startDownload(String filename, SearchReplyMessage downl
 		}
 	}
 	
-	// If not all blocks could be located, cancel the download and throw an exception
-	download.setDownloadStatus(PeerDownloadStatus.failed);
-	throw new RuntimeException("couldn't get all blocks of file " + filename);
+	// If not all blocks could be located, cancel the download
+	this.downloadFailed(filename, "not all blocks available");
+}
+
+public synchronized void choosePeers(String filename, SearchReplyPeerEntry[] peers, FileBitmap blocksNeeded)
+{
+	/*
+	// Construct a priority queue to sort the block indexes by their rarity
+	PriorityQueue<BlockIndexFrequency> blockFrequencies = new PriorityQueue<BlockIndexFrequency>();
+	for (int i = 1; i <= FileBitmap.FILE_BITMAP_SIZE; i++)
+	{
+		if (blocksNeeded.hasBlockAtIndex(i))
+			blockFrequencies.add(new BlockIndexFrequency(i, peers));
+	}
+	
+	// Request the rarest blocks first
+	while (blockFrequencies.size() > 0)
+	{
+		// Check that the frequency is greater than zero
+	}
+	*/
+	
+	/*
+	Set sortedPeers = new TreeSet(
+	int maxRangeSize = (blocksNeeded.getNumberOfBlocks() / peers.length);
+	FileBitmap blocksRemaining = blocksNeeded.clone();
+	
+	SearchReplyPeerEntry peer;
+	int startIndex = 1, endIndex;
+	while (int startIndex
+	{
+		for (int startIndex = 1; startIndex <= FileBitmap.FILE_BITMAP_SIZE; startIndex++)
+		{
+			if (blocksRemaining.hasBlockAtIndex(startIndex))
+				continue;
+			
+			for (SearchReplyPeerEntry peer : sortedPeers)
+			{
+				if (
+			}
+		}
+	}
+	*/
 }
 
 public synchronized void stopDownloads(boolean sendBitmaps)
@@ -193,8 +232,8 @@ public synchronized void shutdown()
 	
 	try
 	{
-		// If the existing downloads don't finish in ten seconds, force termination
-		if (!threadPool.awaitTermination(10, TimeUnit.SECONDS))
+		// If the existing downloads don't finish in five seconds, force termination
+		if (!threadPool.awaitTermination(5, TimeUnit.SECONDS))
 			threadPool.shutdownNow();
 	}
 	catch (InterruptedException E)
@@ -206,18 +245,19 @@ public synchronized void shutdown()
 	// Remove partial downloads on disk
 	for (Map.Entry<String, PeerDownloadFile> file : downloads.entrySet())
 	{
-		this.deletePartialFiles(file.getKey());
+		this.deletePartialDownload(file.getKey());
 	}
 }
 
-public synchronized boolean blockReceived(String filename, int blockIndex)
+public synchronized boolean wantsBlocksForFile(String filename)
+{
+	return !(downloads.get(filename).getDownloadStatus().isStopped());
+}
+
+public synchronized void blockReceived(String filename, int blockIndex)
 {
 	// Locate the file to update
 	PeerDownloadFile file = downloads.get(filename);
-	
-	// Check if the file is still being downloaded
-	if (file.getDownloadStatus().isStopped())
-		return false;
 	
 	// Update the bitmap
 	file.updateReceivedBitmap(blockIndex);
@@ -236,14 +276,58 @@ public synchronized boolean blockReceived(String filename, int blockIndex)
 		// Nothing we can do here...
 	}
 	
-	// If necessary, update the download status
-	if (file.getDownloadStatus() == PeerDownloadStatus.notStarted)
+	// If all the blocks have been downloaded, merge the partial files
+	FileBitmap completeBitmap = new FileBitmap(file.getFileSize());
+	if (file.getReceivedBitmap().equals(completeBitmap))
+	{
+		file.setDownloadStatus(PeerDownloadStatus.finishing);
+		try
+		{
+			finalizeFile(filename);
+			deletePartialFiles(filename);
+		}
+		catch (IOException e)
+		{
+			System.err.println(e.getMessage());
+			file.setDownloadStatus(PeerDownloadStatus.failed);
+		}
+		file.setDownloadStatus(PeerDownloadStatus.complete);
+	}
+	// If the download is incomplete, but hasn't been marked as in-progress, mark it as such
+	else if (file.getDownloadStatus() == PeerDownloadStatus.notStarted || file.getDownloadStatus() == PeerDownloadStatus.restarting)
+	{
 		file.setDownloadStatus(PeerDownloadStatus.inProgress);
-	
-	return true;
+	}
 }
 
-public synchronized void downloadFailed(String filename)
+private synchronized void finalizeFile(String filename)
+	throws IOException
+{
+	File downloadFile = new File(downloadsDirectory, filename);
+	File[] partialFiles = getPartialFiles(filename);
+	FileOutputStream ofstream = new FileOutputStream(downloadFile);
+	FileInputStream ifstream = null;
+	byte[] contents;
+	try
+	{
+		for (File partialFile : partialFiles)
+		{
+			ifstream = new FileInputStream(partialFile);
+			contents = new byte[(int) partialFile.length()];
+			ifstream.read(contents);
+			ofstream.write(contents);
+			ifstream.close();
+		}
+	}
+	finally
+	{
+		if (ifstream != null)
+			ifstream.close();
+		ofstream.close();
+	}
+}
+
+public synchronized void downloadFailed(String filename, String reason)
 {
 	// Locate the file in question
 	PeerDownloadFile file = downloads.get(filename);
@@ -253,6 +337,9 @@ public synchronized void downloadFailed(String filename)
 	{
 		// Set download status to "failed"
 		file.setDownloadStatus(PeerDownloadStatus.failed);
+		
+		// Record the reason the download failed
+		file.setFailureReason(reason);
 	}
 }
 
@@ -262,33 +349,39 @@ public synchronized File[] getPartialFiles(String filename)
 	return downloadsDirectory.listFiles(new PartialFilesFilenameFilter(filename));
 }
 
-public synchronized void deletePartialFiles(String filename)
+public synchronized int deletePartialFiles(String filename)
 {
-	// Get the list of partial files for this filename
+	// Delete all the partial files for this download
 	File[] partialFiles = this.getPartialFiles(filename);
-	
-	// Check if the list is non-empty
-	if (partialFiles.length == 0)
-		return;
-	
-	// Delete the matching files
 	for (File file : partialFiles)
 	{
 		file.delete();
 	}
 	
-	// Send empty bitmap to the tracker, indicating that we don't have this file
-	try
+	// Return the number of files deleted
+	return partialFiles.length;
+}
+
+public synchronized void deletePartialDownload(String filename)
+{
+	// Delete all partial files associated with this download
+	int numFilesDeleted = this.deletePartialFiles(filename);
+	
+	// If we deleted anything, send an empty bitmap to the tracker, indicating that we don't have this file
+	if (numFilesDeleted > 0)
 	{
-		trackerConnection.sendMessage(new FileBitmapMessage(filename, new FileBitmap()));
-	}
-	catch (IOException IOE)
-	{
-		// Nothing we can do here...
-	}
-	catch (ErrorMessageException EME)
-	{
-		// Nothing we can do here...
+		try
+		{
+			trackerConnection.sendMessage(new FileBitmapMessage(filename, new FileBitmap()));
+		}
+		catch (IOException IOE)
+		{
+			// Nothing we can do here...
+		}
+		catch (ErrorMessageException EME)
+		{
+			// Nothing we can do here...
+		}
 	}
 }
 
@@ -303,22 +396,31 @@ public synchronized void printDownloadStatusList()
 	
 	// Iterate through the list of downloads, in the order they were added
 	PeerDownloadFile file;
+	FileBitmap bitmap;
 	for (String filename : downloadList)
 	{
 		// Get the download entry
 		file = downloads.get(filename);
 		
 		// Print the name and status of the file
-		System.out.println(filename + " (" + file.getDownloadStatus() + "):");
+		System.out.print(filename + " (" + file.getDownloadStatus());
+		if (file.getDownloadStatus() == PeerDownloadStatus.failed)
+		{
+			System.out.println(": " + file.getFailureReason() + ")");
+		}
+		else
+		{
+			System.out.println(")");
+		}
 		
 		// Calculate the download progress
-		int downloadedBlocks = file.getReceivedBitmap().getNumberOfBlocks();
+		bitmap = file.getReceivedBitmap();
+		int downloadedBlocks = bitmap.getNumberOfBlocks();
 		int totalBlocks = (int)Math.ceil((double)file.getFileSize() / (double)Message.MAX_BLOCK_SIZE);
 		
-		// FIXME: calculate bytes downloaded out of total bytes?
-		
 		// Print the download progress
-		System.out.println("\t" + downloadedBlocks + " out of " + totalBlocks + " blocks");
+		System.out.println("  [" + bitmap.getStringForBitmapOfSize(totalBlocks) + "]");
+		System.out.println("  " + downloadedBlocks + " out of " + totalBlocks + " blocks");
 	}
 }
 

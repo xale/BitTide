@@ -106,8 +106,36 @@ public static void main(String[] args)
 	downloadManager = new PeerDownloadManager(trackerConnection, downloadsDirectory);
 	System.out.println("done");
 	
-	// Send the list of files we're seeding to the server
-	// FIXME: WRITEME
+	// Send the list of files we're seeding to the tracker
+	System.out.print("Sending seeded file list to tracker... ");
+	File[] sharedFiles = downloadsDirectory.listFiles();
+	for (File sharedFile : sharedFiles)
+	{
+		try
+		{
+			trackerConnection.sendMessage(new FileInfoMessage(sharedFile));
+		}
+		catch (ErrorMessageException e)
+		{
+			System.out.println();
+			System.err.println("error sending file info for file " + sharedFile.getName() + ".");
+		}
+		catch (EOFException EOFE)
+		{
+			System.out.println();
+			System.err.print("error sending file info for file " + sharedFile.getName() + ":");
+			System.err.println(" tracker closed connection.");
+			closeConnectionsAndExit(1);
+		}
+		catch (IOException IOE)
+		{
+			System.out.println();
+			System.err.print("error sending file info for file " + sharedFile.getName() + ":");
+			System.err.println(" a network error occurred: " + IOE.getMessage());
+			closeConnectionsAndExit(1);
+		}
+	}
+	System.out.println("done");
 	
 	// Wrap all user interaction in a try block for network errors
 	try
@@ -201,16 +229,14 @@ public static void main(String[] args)
 					}
 					
 					// Otherwise, attempt download the file
-					try
+					System.out.print("beginning download... ");
+					if (downloadManager.startDownload(filename, searchReply))
 					{
-						System.out.print("beginning download... ");
-						downloadManager.startDownload(filename, searchReply);
 						System.out.println("download started");
 					}
-					catch (RuntimeException RE)
+					else
 					{
-						System.out.println();
-						System.err.println("download failed: " + RE.getMessage());
+						System.out.println("download failed (type 'print' for details)");
 					}
 					
 					break;

@@ -31,75 +31,62 @@ public void run()
 {
 	try
 	{
-		System.out.println();
-		System.out.println("DEBUG: starting download of file " + filename);
-		
 		// Open streams on the socket to the peer
 		MessageInputStream readStream = new MessageInputStream(peerSocket.getInputStream());
 		MessageOutputStream writeStream = new MessageOutputStream(peerSocket.getOutputStream());
 		
-		System.out.println("       streams open");
-		
 		// Request each of the blocks from the peer
-		int startIndex = 1, endIndex, numRequested, numReceived;
+		int startIndex = 1, endIndex;
 		while (startIndex <= FileBitmap.FILE_BITMAP_SIZE)
 		{
 			// Check if we need this block from this peer
-			if (!blocksRequested.get(startIndex))
+			if (!blocksRequested.hasBlockAtIndex(startIndex))
 			{
 				startIndex++;
 				continue;
 			}
 			
 			// Determine if this block is part of a contiguous range
-			
 			for (endIndex = startIndex + 1; endIndex <= FileBitmap.FILE_BITMAP_SIZE; endIndex++)
 			{
-				if (!blocksRequested.get(endIndex))
+				if (!blocksRequested.hasBlockAtIndex(endIndex))
 					break;
 			}
-			
-			System.out.println("       requesting blocks " + startIndex + " through " + (endIndex - 1));
 			
 			// Request the range from the peer
 			writeStream.writeMessage(new FileRequestMessage(filename, startIndex, (endIndex - 1)));
 			
-			numRequested = endIndex - startIndex;
-			
-			System.out.println("       " + numRequested + " blocks requested, awaiting responses");
-			
-			for (numReceived = 0; numReceived < numRequested; numReceived++)
+			int numRequested = endIndex - startIndex;
+			for (int numReceived = 0; numReceived < numRequested; numReceived++)
 			{
 				// Wait for the response
 				Message replyMessage = readStream.readMessage();
 				
 				// Check that the response is a MSG_FILE_REP
 				if (replyMessage.getMessageCode() != MessageCode.FileReplyMessageCode)
-					throw new Exception("FileRequest response is not a FileReply");
+					throw new RuntimeException("FileRequest response is not a FileReply");
 				
 				FileReplyMessage fileReply = (FileReplyMessage)replyMessage;
 				
-				System.out.println("              response received for block: " + fileReply.getBlockIndex());
+				// Ask the download manager if it still wants blocks of this file
+				if (!downloadManager.wantsBlocksForFile(filename))
+					throw new RuntimeException("download canceled");
 				
-				// Attempt to update the file's bitmap; if the download manager returns "false," abandon the download
-				if (!downloadManager.blockReceived(filename, fileReply.getBlockIndex()))
-					throw new Exception("download abandoned at request of DownloadManager");
+				// Write the received block to disk in a temporary file
+				this.writeBlock(fileReply.getBlockIndex(), fileReply.getBlockContents());
 				
-				// Write the received block to disk
-				// FIXME: WRITEME
+				// Update the bitmap for this file
+				downloadManager.blockReceived(filename, fileReply.getBlockIndex());
 			}
 			
 			// Advance indexes
-			// FIXME: WRITEME
+			startIndex = endIndex + 1;
 		}
 	}
 	catch (Exception E)
 	{
-		// FIXME: DEBUG
-		System.err.println("DEBUG: exception in download: " + E.getMessage());
-	
 		// Inform the download manager that the download has failed
-		downloadManager.downloadFailed(filename);
+		downloadManager.downloadFailed(filename, E.getMessage());
 	}
 	finally
 	{
@@ -117,8 +104,20 @@ public void run()
 }
 
 private void writeBlock(int blockIndex, ByteBuffer blockContents)
+	throws FileNotFoundException, IOException
 {
-
+	FileOutputStream foutStream = null;
+	try
+	{
+		File downloadLocation = new File(downloadsDirectory, filename + "." + blockIndex);
+		foutStream = new FileOutputStream(downloadLocation);
+		foutStream.write(blockContents.array());
+	}
+	finally
+	{
+		if (foutStream != null)
+			foutStream.close();
+	}
 }
 
 }
