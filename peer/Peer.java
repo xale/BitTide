@@ -229,16 +229,14 @@ public static void main(String[] args)
 					}
 					
 					// Otherwise, attempt download the file
-					try
+					System.out.print("beginning download... ");
+					if (downloadManager.startDownload(filename, searchReply))
 					{
-						System.out.print("beginning download... ");
-						downloadManager.startDownload(filename, searchReply);
 						System.out.println("download started");
 					}
-					catch (RuntimeException RE)
+					else
 					{
-						System.out.println();
-						System.err.println("couldn't start download: " + RE.getMessage());
+						System.out.println("download failed (type 'print' for details)");
 					}
 					
 					break;

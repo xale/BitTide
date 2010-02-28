@@ -30,7 +30,7 @@ public PeerDownloadManager(PeerToTrackerConnection tracker, File downloadDir)
 	threadPool = Executors.newCachedThreadPool();
 }
 
-public synchronized void startDownload(String filename, SearchReplyMessage downloadInfo)
+public synchronized boolean startDownload(String filename, SearchReplyMessage downloadInfo)
 {
 	// Check if we have already downloaded part or all of this file
 	PeerDownloadFile download = downloads.get(filename);
